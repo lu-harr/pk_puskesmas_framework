@@ -1,4 +1,11 @@
 # main
+
+# TODO
+  # store info on duplicated sites somewhere
+  # go through *all* the sites and check their coords ffs
+  # write this so I'm grabbing health_sites directly from moh dataset, and prelim sites
+
+
 setwd("~/Desktop/knowlesi/catchment_paper")
 library(raster)
 library(viridisLite)
@@ -16,13 +23,12 @@ DISTRICT_IND = c(2,3,4,5,6,7,9)
 health_sites = read.csv("data/health_sites.csv",
                         header=TRUE)
 source(paste0(code_path,"format_site_names.R"))
-# there are duplicates !
-# which(health_sites == "") # 3.749165727757461, 98.24324134177992
 
 health_sites$regency = factor(health_sites$regency,
                               levels=pilot_shapes$KABKOT)
 
-# thinning step not required as not using the gmaps sites
+source(paste0(code_path, "thin_duplicate_sites.R"))
+# some coordinates are corrected in script above, functional duplicate sites are removed
 
 source(paste0(code_path, "catchment_functions.R"))
 
