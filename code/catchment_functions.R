@@ -129,7 +129,7 @@ kabkotNearestSiteCatchment <- function(ras,
   # now populate rasters
   flat_ras <- ras
   flat_ras[] <- NA
-  lapply(1:nrow(cand_sites), function(x){
+  lapply(1:nrow(cand_phcs), function(x){
     to_fill <- non_na_idx[which(pix == x)]
     flat_ras[to_fill] <- 1
     flat_ras
@@ -147,7 +147,7 @@ wrapNearestSiteCatchment <- function(regency_razzes,
   outlst = vector(mode = "list", length = nrow(phc_df))
   
   for (kabkot in 1:nrow(regency_razzes)){
-    ind <- which(phc_df$regency == regency_razzes$KABKOT[kabkot])
+    ind <- which(phc_df$regency == regency_razzes$district_name[kabkot])
     outlst[ind] <- kabkotNearestSiteCatchment(regency_razzes$ras[[kabkot]],
                                               phc_df[ind,])
   }
@@ -155,7 +155,6 @@ wrapNearestSiteCatchment <- function(regency_razzes,
   message(sum(sapply(outlst, is.null)))
   outlst
 }
-
 
 
 

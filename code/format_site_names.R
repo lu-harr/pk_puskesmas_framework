@@ -1,6 +1,7 @@
 ########################################################################
 # NAMES VECTOR CODE
-# MAKE SITE NAMES LOOK NICE BY TRIMMING PUSKESMAS, NUMBERS FROM MOH SET
+# MAKE SITE NAMES LOOK NICE BY TRIMMING PUSKESMAS, NUMBERS FROM MoH SET
+# I wrote this a long time ago but it seems to work fine?
 
 library(stringr)
 
@@ -21,7 +22,7 @@ for (i in 1:length(names_vec)){
       edit_name[1] == "Puskesmas,"|
       edit_name[1] == "POSKESDES"|
       edit_name[1] == "Pueskesmas"){
-    message(edit_name[2:length(edit_name)])
+    #message(edit_name[2:length(edit_name)])
     names_vec[i] = paste(edit_name[2: (length(edit_name))], collapse=" ")
   }
   
