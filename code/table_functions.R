@@ -1,4 +1,5 @@
 # FUNCTIONS TO MAKE TABLES !
+library("kableExtra")
 
 ########################################################################
 # FUNCTION FOR TABLE COLOURING GIVEN PALETTE
@@ -45,11 +46,21 @@ manual_font_colour = function(bg_vec, rev=FALSE){
 
 ########################################################################
 # FUNCTION THAT CREATES + SAVES TABLE
-summary_table_regency = function(tab, path, dataset_vec, cap = " ", rank_col=0,
+summary_table_regency = function(tab, 
+                                 row_index,
+                                 path, 
+                                 dataset_vec, 
+                                 cap = " ", 
+                                 rank_col=0,
                                  npoints_to_rank=min(10, nrow(tab)),
-                                 lu_crits=land_use_crits, pop_passes=FALSE,
-                                 pass_colour=pass_colour, fail_colour=fail_colour){
+                                 lu_crits=land_use_crits,
+                                 pass_colour=pass_colour, 
+                                 fail_colour=fail_colour){
   neworder = NA
+  rownames(tab) = NULL
+  pop_passes = tab[row_index, 10]
+  tab = tab[row_index, 1:9] # subset columns to remove
+  dataset_vec = dataset_vec[row_index]
   
   if (rank_col > 0){
     # create the column of ranks at far left
@@ -74,10 +85,9 @@ summary_table_regency = function(tab, path, dataset_vec, cap = " ", rank_col=0,
   message(names(tab))
   message(length(names(tab)))
   
-  kbl(tab, escape = F, align = "c", caption = cap, digits = 2, 
+  tmp = kbl(tab, escape = F, align = "c", caption = cap, digits = 2, 
       table.attr = "style='width:70%;  height=30%'") %>%
     kable_classic() %>%
-    #kable_styling(full_width = FALSE) %>%
     add_header_above(c(" "=4+rank_col,"Total"=1, "Maximum Single Value"=3)) %>%
     # rank col
     column_spec(1, background = ifelse(dataset_vec == "prelim", "red", "white")) %>%
@@ -102,27 +112,23 @@ summary_table_regency = function(tab, path, dataset_vec, cap = " ", rank_col=0,
                                                           "YlOrRd", begin=3)), 
                 background = spec_color_diy(tab[[4+rank_col]], "YlOrRd", begin=3),
                 bold=TRUE) %>%
-    # max ecotype cols
-    column_spec(5+ rank_col, background = spec_color_diy(pop_passes, c(fail_colour,pass_colour), bool_palette = TRUE, crit=0.1)) %>%
-    column_spec(6+rank_col, 
+   column_spec(5+ rank_col, background = spec_color_diy(pop_passes, c("mediumpurple","lightgreen"), 
+                                                        bool_palette = TRUE, crit=0.1)) %>%
+    column_spec(column = 6+rank_col, 
                 background = spec_color_diy(tab[[6+rank_col]],
-                                            c(fail_colour,pass_colour),
+                                            c("mediumpurple","lightgreen"),
                                             bool_palette=TRUE, 
                                             crit=lu_crits[2])) %>%
     column_spec(7+rank_col, 
                 background = spec_color_diy(tab[[7+rank_col]],
-                                            c(fail_colour,pass_colour),
+                                            c("mediumpurple","lightgreen"),
                                             bool_palette=TRUE, 
                                             crit=lu_crits[3])) %>%
     column_spec(8+rank_col, 
-                background = spec_color_diy(tab[[8+rank_col]], c(fail_colour,pass_colour),
+                background = spec_color_diy(tab[[8+rank_col]], c("mediumpurple","lightgreen"),
                                             bool_palette=TRUE,
                                             crit=lu_crits[4])) %>%
-    #background = c("#90EE90","white","white","white","white","white","white","white")) %>%
-    # column_spec(8+rank_col, 
-    #             background = spec_color_diy(tab[[8+rank_col]], c(fail_colour,pass_colour),
-    #                                         bool_palette=TRUE, crit=land_use_crits[5])) #%>%
     save_kable(path, zoom=3)
   
-  return(neworder)
+  return(tmp)
 }

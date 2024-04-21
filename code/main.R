@@ -1,18 +1,5 @@
 # main
 
-# TODO
-  # store info on duplicated sites somewhere
-  # go through *all* the sites and check their coords ffs
-  # write this so I'm grabbing health_sites directly from moh dataset, and prelim sites
-  # chuck districts shp into repo or grab from MAP pkg
-  # check `objective` is definitely Tobin 2024
-    # mask out non-Kalimantan/Sumatra pix in lulc_covs? 
-    # Grab back Malaysian Borneo pixels for edge effects if they exist somewhere?
-    # basically just check all the masks match
-  # re-landing step isn't quite right ....
-  # check crazy hard-coded threshold in catchment summary
-
-
 setwd("~/Desktop/knowlesi/catchment_paper")
 library(raster)
 library(viridisLite)
@@ -50,7 +37,7 @@ health_sites$dist_catch = apply(health_sites, 1,
                                 getDistanceCatchment, 
                                 radius_m=30000, ras=lulc_covs$objective)
 
-health_sites$time_catch = sapply(1:nrow(health_sites), getTimeCatchment,
+health_sites$time_catch = sapply(1:nrow(health_sites), gettimeCatchment,
                                  points=health_points,
                                  transition_surfaces=transition_surfaces,
                                  island_groups=health_sites$island_group,
@@ -76,21 +63,48 @@ land_use_crits = quantile(lulc_covs, probs=c(0,0.1,0.5,0.9,1))[land_use_names, 2
 land_use_crits[3] = 1
 # still using 10% quantile for human pop but given the spread of hpop values .. I'm happy with that
 
+# might be sensible to check all sites are actually on land?
+check_empty_catches <- lapply(health_sites$time_catch, 
+                              function(x){
+                                return(ifelse(sum(is.na(values(x))) == ncell(x), TRUE, FALSE))
+                              })
+which(unlist(check_empty_catches) == TRUE)
+health_sites <- health_sites[-c(which(unlist(check_empty_catches) == TRUE)),]
+
 dist_catch_summary = lapply(health_sites$dist_catch,
                             catchment_summary_stats, 
                             lulc_covs)
-# bit of a spooky warning here ...
+dist_catch_summary = lapply(1:nrow(health_sites),
+                            function(x){
+                              message(x)
+                              catchment_summary_stats(health_sites[[x, "dist_catch"]],
+                                                      lulc_covs)
+                              })
 
 time_catch_summary = lapply(health_sites$time_catch,
                             catchment_summary_stats, 
                             lulc_covs)
-# aaaand there's an error here ...
-# Error in .memtrimlayer(x, padding = padding, values = values, ...) :
-#   only NA values found
+time_catch_summary = lapply(1:nrow(health_sites),
+                            function(x){
+                              message(x)
+                              catchment_summary_stats(health_sites[[x, "time_catch"]],
+                                                      lulc_covs)
+                            })
 
+# All of these should have at least one pixel to themselves if the duplicate removal worked?
+# although I think I'm using centroid locations so perhaps not if there is a site in an adjacent pixel
+# closer than half the hypotenuse.......
 stretch_catch_summary = lapply(health_sites$stretch_catch,
                                catchment_summary_stats,
                                lulc_covs)
+stretch_catch_summary = lapply(1:nrow(health_sites),
+                            function(x){
+                              message(x)
+                              catchment_summary_stats(health_sites[[x, "stretch_catch"]],
+                                                      lulc_covs)
+                            })
+# I'm through !
+
 library(data.table)
 dist_catch_summary = as.data.frame(data.table::rbindlist(dist_catch_summary))
 time_catch_summary = as.data.frame(data.table::rbindlist(time_catch_summary))
@@ -99,21 +113,70 @@ stretch_catch_summary = as.data.frame(data.table::rbindlist(stretch_catch_summar
 # now create tables
 outpath = "output/tables/"
 
-
 # ecotype_agg: number of ecotypes represented in each catch
 # summaries: the table in a dataframe ready to go :)
 head(dist_catch_summary)
 ecotype_agg = apply(dist_catch_summary[,5:8], 1, function(x){sum(x > 0)})
-tmp_dist_summ = cbind(health_sites$name, dist_catch_summary[, c(1,2,3)], ecotype_agg, dist_catch_summary[, 9:12], dist_catch_summary[,5])
-names(tmp_dist_summ) = c("Name", "No' Pixels", "Objective Mean", "Objective Std Dev", "Eco-constraints  Present",  "Human Pop", "Croplands", "Oil Palm","Forest Loss", "Pop Discard")
+tmp_dist_summ = cbind(health_sites$name, 
+                      dist_catch_summary[, c(1,2,3)], # npixel, mean and sd objective
+                      ecotype_agg, 
+                      dist_catch_summary[, 9:12], # max hpop, croplands, oil palm, loss year
+                      dist_catch_summary[,5]) # hpop
+names(tmp_dist_summ) = c("Name", "No' Pixels", "Objective Mean", "Objective Std Dev", 
+                         "Eco-constraints  Present",  "Human Pop", "Croplands", "Oil Palm","Forest Loss", 
+                         "Pop Discard")
 
 head(time_catch_summary)
 ecotype_agg = apply(time_catch_summary[, 5:8], 1, function(x){sum(x > 0)})
-tmp_time_summ = cbind(health_sites$name, time_catch_summary[, c(1,2,3)], ecotype_agg, time_catch_summary[, 9:12], time_catch_summary[,5])
-names(tmp_time_summ) = c("Name", "No' Pixels", "Objective Mean", "Objective Std Dev", "Eco-constraints  Present",  "Human Pop", "Croplands", "Oil Palm","Forest Loss", "Pop Discard")
+tmp_time_summ = cbind(health_sites$name, 
+                      time_catch_summary[, c(1,2,3)], 
+                      ecotype_agg, 
+                      time_catch_summary[, 9:12], 
+                      time_catch_summary[,5])
+names(tmp_time_summ) = c("Name", "No' Pixels", "Objective Mean", "Objective Std Dev", 
+                         "Eco-constraints  Present",  "Human Pop", "Croplands", 
+                         "Oil Palm","Forest Loss", "Pop Discard")
+
+head(stretch_catch_summary)
+ecotype_agg = apply(stretch_catch_summary[, 5:8], 1, function(x){sum(x > 0)})
+tmp_stretch_summ = cbind(health_sites$name, 
+                      stretch_catch_summary[, c(1,2,3)], 
+                      ecotype_agg, 
+                      stretch_catch_summary[, 9:12], 
+                      stretch_catch_summary[,5])
+names(tmp_stretch_summ) = c("Name", "No' Pixels", "Objective Mean", "Objective Std Dev", 
+                         "Eco-constraints  Present",  "Human Pop", "Croplands", 
+                         "Oil Palm","Forest Loss", "Pop Discard")
+
+# now to make up those tables ...
+source("code/table_functions.R")
+
+outpath = "output/tables/"
+for (regency in district_shapes$district_name){
+  summary_table_regency(tab = tmp_dist_summ,
+                        row_index = which(health_sites$regency == regency),
+                        path = paste0(outpath, tolower(gsub(" ", "_", regency)), "_dist_tab.html"),
+                        dataset_vec = health_sites$dataset,
+                        cap = paste0(str_to_title(regency), " puskesmas (distance catchments)"), 
+                        rank_col=2)
+}
+
+malinau_rank_dist = summary_table_regency(tab = tmp_dist_summ,
+                                          row_index = which(health_sites$regency == toupper("malinau")),
+                                          path = paste0(outpath, "malinau_dist_tab.html"),
+                                          dataset_vec = health_sites$dataset,
+                                          cap = "Malinau sites (distance catchments)", 
+                                          rank_col=2)
+#webshot("~/Desktop/malinau_dist_tab.html", "malinau_dist_tab.pdf")
+#https://unix.stackexchange.com/questions/533886/is-there-a-command-line-tool-for-converting-html-files-to-pdf
+# something like this?
+# writing to tex would be great but that doesn't seem to work ...
+# worst comes to worst I know that xtable does the job ....
+
+
 
 
 # ranked_map calls - also need to provide
-outpath = "~/Desktop/knowlesi/output/tables_030522/"
+outpath = "~/Desktop/"
 source(paste0(code_path,"7_rank_maps.R"))
 
