@@ -14,4 +14,5 @@ Code repo attached to draft thesis chapter / paper
   - re-landing step isn't quite right ....
   - check crazy hard-coded threshold in catchment summary
   - check somewhere that I'm only including travel time catchments with at least one pixel in them
-  - am now thinking that I would prefer xtable to kable? idk? give it a squizz?
+  - ~am now thinking that I would prefer xtable to kable? idk? give it a squizz?~
+    - recolour ecoconstraints column :)

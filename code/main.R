@@ -161,20 +161,48 @@ for (regency in district_shapes$district_name){
                         rank_col=2)
 }
 
-malinau_rank_dist = summary_table_regency(tab = tmp_dist_summ,
-                                          row_index = which(health_sites$regency == toupper("malinau")),
-                                          path = paste0(outpath, "malinau_dist_tab.html"),
-                                          dataset_vec = health_sites$dataset,
-                                          cap = "Malinau sites (distance catchments)", 
-                                          rank_col=2)
-#webshot("~/Desktop/malinau_dist_tab.html", "malinau_dist_tab.pdf")
-#https://unix.stackexchange.com/questions/533886/is-there-a-command-line-tool-for-converting-html-files-to-pdf
-# something like this?
-# writing to tex would be great but that doesn't seem to work ...
-# worst comes to worst I know that xtable does the job ....
+# malinau_rank_dist = summary_table_regency(tab = tmp_dist_summ,
+#                                           row_index = which(health_sites$regency == toupper("malinau")),
+#                                           path = paste0(outpath, "malinau_dist_tab.html"),
+#                                           dataset_vec = health_sites$dataset,
+#                                           cap = "Malinau sites (distance catchments)", 
+#                                           rank_col=3)
 
+# summary_xtable(tab = tmp_dist_summ,
+#                row_index = which(health_sites$regency == toupper("malinau")),
+#                dataset_vec = health_sites$dataset,
+#                cap = "Malinau sites (distance catchments)", 
+#                rank_col=3)
 
+sink("output/tables/dist.tex")
+for (regency in district_shapes$district_name){
+  summary_xtable(tab = tmp_dist_summ,
+                 row_index = which(health_sites$regency == regency),
+                 dataset_vec = health_sites$dataset,
+                 cap = paste0(str_to_title(regency), " sites (distance catchments)"), 
+                 rank_col=3)
+}
+sink()
 
+sink("output/tables/time.tex")
+for (regency in district_shapes$district_name){
+  summary_xtable(tab = tmp_time_summ,
+                 row_index = which(health_sites$regency == regency),
+                 dataset_vec = health_sites$dataset,
+                 cap = paste0(str_to_title(regency), " sites (travel time catchments)"), 
+                 rank_col=3)
+}
+sink()
+
+sink("output/tables/stretch.tex")
+for (regency in district_shapes$district_name){
+  summary_xtable(tab = tmp_stretch_summ,
+                 row_index = which(health_sites$regency == regency),
+                 dataset_vec = health_sites$dataset,
+                 cap = paste0(str_to_title(regency), " sites (``closest point'' catchments)"), 
+                 rank_col=3)
+}
+sink()
 
 # ranked_map calls - also need to provide
 outpath = "~/Desktop/"

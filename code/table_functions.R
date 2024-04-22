@@ -1,5 +1,6 @@
 # FUNCTIONS TO MAKE TABLES !
-library("kableExtra")
+library(kableExtra)
+library(xtable)
 
 ########################################################################
 # FUNCTION FOR TABLE COLOURING GIVEN PALETTE
@@ -132,3 +133,121 @@ summary_table_regency = function(tab,
   
   return(tmp)
 }
+
+
+###############################################################################
+# writing a separate version of this in xtable .... let's see how we go
+
+set_bg_col <- function(vec, pal){
+  out = pal[as.numeric(cut(vec, breaks=length(pal)-1))]
+  out[is.na(out)] = "FFFFFF"
+  return(out)
+}
+
+set_font_col <- function(vec){
+  ifelse(vec %in% c("BD0026", "800026", "E31A1C"), "FFFFFF", "000000")
+}
+
+#"#FED976" "#FEB24C" "#FD8D3C" "#FC4E2A" "#E31A1C" "#BD0026" "#800026"
+
+summary_xtable = function(tab, 
+                          row_index,
+                          dataset_vec, 
+                          cap = " ", 
+                          rank_col = 0,
+                          npoints_to_rank = min(10, nrow(tab)),
+                          lu_crits = land_use_crits,
+                          pass_colour = pass_colour, 
+                          fail_colour = fail_colour){
+  neworder = NA
+  rownames(tab) = NULL
+  pop_passes = tab[row_index, 10]
+  tab = tab[row_index, 1:9]  # subset columns to remove
+  dataset_vec = dataset_vec[row_index]
+  
+  if (rank_col > 0){
+    # create the column of ranks at far left
+    neworder = order(tab[,rank_col], decreasing=TRUE)
+    tab = tab[neworder,]
+    pop_passes = pop_passes[neworder]
+    dataset_vec = dataset_vec[neworder]
+    tab = cbind(c(1:npoints_to_rank, rep("-", nrow(tab) - npoints_to_rank)), tab)
+    colnames(tab) = c("Rank", colnames(tab)[2:ncol(tab)])
+    rownames(tab) = NULL
+    # print(neworder)
+  }
+  
+  ylorrd_pal <- gsub("#", "", brewer.pal(9, "YlOrRd")[3:9])
+  col_fail <- "9370D8"
+  col_pass <- "90EE90"
+  
+  
+  tab$`Human Pop` = sapply(ceiling(log10(tab$`Human Pop`)),
+                           function(x){ifelse(x > 0,
+                                              paste(rep("*", x), collapse=""),
+                                              "Low")})
+  
+  coltab <- tab %>%
+    mutate(`Objective Mean` = set_bg_col(tab$`Objective Mean`, ylorrd_pal),
+           `Objective Std Dev` = set_bg_col(tab$`Objective Std Dev`, ylorrd_pal),
+           `Eco-constraints  Present` = set_bg_col(tab$`Eco-constraints  Present`, ylorrd_pal),
+           Croplands = ifelse(Croplands > lu_crits["croplands"], col_pass, col_fail),
+           `Oil Palm` = ifelse(`Oil Palm` > lu_crits["oil_palm"], col_pass, col_fail),
+           `Forest Loss` = ifelse(`Forest Loss` > lu_crits["loss_year"], col_pass, col_fail)) %>%
+    mutate(obj_mean_font = set_font_col(`Objective Mean`),
+           obj_sd_font = set_font_col(`Objective Std Dev`),
+           ecotypes_font = set_font_col(`Eco-constraints  Present`))
+
+  tab <- tab %>%
+    mutate(across(`Objective Mean`:`Objective Std Dev`, 
+                  function(x){
+                    format(round(x, digits = 2), big.mark = ",", scientific = FALSE)
+                  })) %>%
+    mutate(across(`Croplands`:`Forest Loss`, 
+                  function(x){
+                    format(round(x, digits = 2), big.mark = ",", scientific = FALSE)
+                  })) %>%
+    mutate(Rank = paste0(ifelse(dataset_vec == "prelim", "\\cellcolor{red}", ""),
+                         "{", Rank, "}"),
+           `Objective Mean` = paste0("\\cellcolor[HTML]{", coltab$`Objective Mean`,
+                                     "}\\textcolor[HTML]{", coltab$obj_mean_font, 
+                                     "}{", `Objective Mean`, "}"),
+           `Objective Std Dev` = paste0("\\cellcolor[HTML]{", coltab$`Objective Std Dev`,
+                                        "}\\textcolor[HTML]{", coltab$obj_sd_font, 
+                                        "}{",`Objective Std Dev`, "}"),
+           `Eco-constraints  Present` = paste0("\\cellcolor[HTML]{", coltab$`Eco-constraints  Present`,
+                                               "}\\textcolor[HTML]{", coltab$ecotypes_font, 
+                                               "}{",`Eco-constraints  Present`, "}"),
+           `Human Pop` = paste0("\\cellcolor[HTML]{",
+                                ifelse(pop_passes > 0, col_pass, col_fail),
+                                "}{",`Human Pop`, "}"),
+           Croplands = paste0("\\cellcolor[HTML]{",
+                              coltab$Croplands,
+                              "}{",`Croplands`, "}"),
+           `Oil Palm` = paste0("\\cellcolor[HTML]{",
+                               coltab$`Oil Palm`,
+                               "}{",`Oil Palm`, "}"),
+           `Forest Loss` = paste0("\\cellcolor[HTML]{",
+                                 coltab$`Forest Loss`,
+                                 "}{",`Forest Loss`, "}"))
+    
+  xtab <- xtable::xtable(tab,
+                         caption = cap)
+  
+  #addtorow <- list()
+  #addtorow$pos <- list(0)
+  #addtorow$command <- "&&&&&& Total & \\multicolumn{4}{c}{Maximum Single Value}"
+  align(xtab) <- rep("c", ncol(tab) + 1)
+  align(xtab) <- c("c", "C{0.05\\textwidth}", "C{0.15\\textwidth}", rep("C{0.08\\textwidth}", 8))
+  
+  print(xtab,
+        #add.to.row = addtorow,
+        size = "\\fontsize{9pt}{10pt}\\selectfont",
+        include.rownames = FALSE,
+        sanitize.text.function = function(x){x},
+        hline.after = NULL)
+  
+  #return(xtab)
+}
+  
+  
