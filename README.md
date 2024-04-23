@@ -16,3 +16,4 @@ Code repo attached to draft thesis chapter / paper
   - check somewhere that I'm only including travel time catchments with at least one pixel in them
   - ~am now thinking that I would prefer xtable to kable? idk? give it a squizz?~
     - recolour ecoconstraints column :)
+    - attatch maps of "closest-point" catchments to the closest point supp ... could be a faff

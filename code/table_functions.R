@@ -1,4 +1,4 @@
-# FUNCTIONS TO MAKE TABLES !
+# FUNCTIONS TO MAKE TABLES ! AND MAPS TO GO WITH !
 library(kableExtra)
 library(xtable)
 
@@ -158,7 +158,8 @@ summary_xtable = function(tab,
                           npoints_to_rank = min(10, nrow(tab)),
                           lu_crits = land_use_crits,
                           pass_colour = pass_colour, 
-                          fail_colour = fail_colour){
+                          fail_colour = fail_colour,
+                          rank_only = FALSE){
   neworder = NA
   rownames(tab) = NULL
   pop_passes = tab[row_index, 10]
@@ -175,6 +176,10 @@ summary_xtable = function(tab,
     colnames(tab) = c("Rank", colnames(tab)[2:ncol(tab)])
     rownames(tab) = NULL
     # print(neworder)
+  }
+  
+  if (rank_only == TRUE){
+    return(neworder)
   }
   
   ylorrd_pal <- gsub("#", "", brewer.pal(9, "YlOrRd")[3:9])
@@ -247,7 +252,96 @@ summary_xtable = function(tab,
         sanitize.text.function = function(x){x},
         hline.after = NULL)
   
-  #return(xtab)
+  #return(neworder)
 }
   
+
+################################################################################
+# todo here ...
+# liberate outpath
+# also kabkot_ind the name should be enough
+# also is there any way of getting my fairy circle in here? Or shifting labels around a bit?
+# in an ideal world ...
+# anyway
+# time to go home
+ranked_map = function(all_points, ranks, kabkot_name, kabkot_ind, kabkot_tag, catch_tag,
+                      ranked=10, malinau_zoom=FALSE, out=TRUE){
+  # order points
+  all_points = all_points[ranks,]
   
+  if (out == TRUE){
+    # start first plot
+    png(paste0(outpath, kabkot_tag, catch_tag, "_rank_map.png"),
+        width = 2000,
+        height = 2000,
+        pointsize = 40)
+    par(mar=c(2.1,2.1,2.1,4.1))
+    plot(pilot_shapes$shape[[kabkot_ind]], main=kabkot_name, lwd=2, cex.main=2)
+  }
+  
+  points(all_points[ranked+1:nrow(all_points), c("lon", "lat")], pch=4, 
+         col=ifelse(all_points$dataset[ranked+1:nrow(all_points)] == "prelim", "red", "grey70"), lwd=4)
+  points(all_points[1:ranked, c("lon", "lat")], pch=4, 
+         col=ifelse(all_points$dataset[1:ranked] == "prelim", "red", "black"), lwd=4)
+  text(all_points[(1:ranked), c("lon", "lat")], 
+       labels=sapply((1:10), function(x){paste0(x, " ", all_points[x,"name"])}),
+       cex=1.1, font=2, pos=4, 
+       col=ifelse(all_points$dataset[(1:ranked)] == "prelim", "red", "black"))
+  
+  # add cities in
+  points(idn_cities$lon, idn_cities$lat, col="blue", lwd=4)
+  text(idn_cities$lon, idn_cities$lat, labels=idn_cities$Name, col="blue", pos=4,
+       font=2,cex=1.1)
+  
+  
+  if (malinau_zoom == TRUE){
+    # If this is the zoomed in plot, edit filename, plot title, add box of 
+    # zoomed plot to larger plot
+    kabkot_save = paste0(kabkot_save, "_zoom")
+    kabkot_name = paste0(kabkot_name, " - Northeast")
+    bound = c(116.3, 116.9, 3, 3.7)
+    lines(c(bound[1], bound[1], bound[2], bound[2], bound[1]),
+          c(bound[3], bound[4], bound[4], bound[3], bound[3]),
+          col="red", lty=2, lwd=3)
+  } else {
+    # yeet out of function
+    dev.off()
+    return(TRUE)
+  }
+  # or keep going to second plot
+  dev.off()
+  
+  label_locs = all_points[1:ranked, c("lon", "lat")]
+  
+  # start second plot - zoomed in for Malinau
+  png(paste0(outpath, kabkot_save, catch_save, "_rank_map.png"),
+      width = 2000,
+      height = 2000,
+      pointsize = 50)
+  par(mar=c(5.1,4.1,4.1,0))
+  plot(pilot_shapes$ras[[kabkot_ind]], main=kabkot_name, cex.main=2,
+       xlim = c(116.3,116.9), ylim=c(3,3.7), col="white", legend=FALSE,
+       xlab="Longitude", ylab="Latitude")
+  plot(pilot_shapes$shape[[kabkot_ind]], lwd=2, add=TRUE)
+  
+  points(all_points[ranked+1:nrow(all_points), c("lon", "lat")], pch=4, 
+         col=ifelse(all_points$dataset[ranked+1:nrow(all_points)] == "prelim",
+                    "red", "grey70"), 
+         lwd=4)
+  points(all_points[1:ranked, c("lon", "lat")], pch=4, 
+         col=ifelse(all_points$dataset[1:ranked] == "prelim", "red", "black"),
+         lwd=4)
+  text(label_locs, 
+       labels=sapply(1:10, function(x){paste0(x, " ", all_points[x,"name"])}),
+       cex=1.4, font=2,
+       pos=4, col=ifelse(all_points$dataset[1:ranked] == "prelim", "red", "black"))
+  
+  # add cities in
+  points(idn_cities$lon, idn_cities$lat, col="blue", lwd=4)
+  text(idn_cities$lon, idn_cities$lat, labels=idn_cities$Name, col="blue", pos=4,
+       font=2)
+  
+  if (out == TRUE){
+    dev.off()
+  }
+}

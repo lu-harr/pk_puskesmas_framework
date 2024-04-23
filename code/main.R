@@ -204,7 +204,36 @@ for (regency in district_shapes$district_name){
 }
 sink()
 
-# ranked_map calls - also need to provide
-outpath = "~/Desktop/"
-source(paste0(code_path,"7_rank_maps.R"))
+# now for the maps
+# read in cities locations
+idn_cities = read.csv2("~/Desktop/knowlesi/data/raw/idn_cities.csv", header = TRUE, sep=",")
+tmp_latlon = as.numeric(unlist(strsplit(as.vector(idn_cities$latlon), ",")))
+
+idn_cities <- idn_cities %>%
+  mutate(relevant.regency = factor(idn_cities$relevant.regency, 
+                                   levels=levels(district_shapes$district_name)),
+         lat = as.numeric(tmp_latlon[seq(1,length(tmp_latlon),2)]),
+         lon = as.numeric(tmp_latlon[seq(2,length(tmp_latlon),2)]))
+
+# ranked_map calls for all districts, dist & time
+message("Warning! DId you change DISTRICT_IND?!")
+ranked_map(stap_points, stap_rank_dist, "Tapanuli Selatan", 2, "stapanuli", "_dist")
+ranked_map(stap_points, stap_rank_time, "Tapanuli Selatan", 2, "stapanuli", "_time")
+
+ranks = summary_xtable(tab = tmp_dist_summ,
+                       row_index = which(health_sites$regency == regency),
+                       dataset_vec = health_sites$dataset,
+                       rank_col = 3,
+                       rank_only = TRUE)
+ranked_map(health_sites[which(health_sites$regency == regency),],
+           ranks = ranks,
+           kabkot_name = str_to_name(regency),
+           kabkot_ind = 2, # is this indexing district_shapes? I don't like it :(
+           kabkot_tag = gsub(" ", "", tolower(regency)),
+           catch_tag = "dist")
+
+
+
+
+
 
