@@ -227,10 +227,9 @@ ranks = summary_xtable(tab = tmp_dist_summ,
                        rank_only = TRUE)
 ranked_map(health_sites[which(health_sites$regency == regency),],
            ranks = ranks,
-           kabkot_name = str_to_name(regency),
-           kabkot_ind = 2, # is this indexing district_shapes? I don't like it :(
-           kabkot_tag = gsub(" ", "", tolower(regency)),
-           catch_tag = "dist")
+           regency = regency,
+           catch_tag = "dist",
+           outpath = "output/district_maps/")
 
 
 

@@ -30,7 +30,7 @@ district_shapes$ras[[7]] = merge(district_shapes$ras[[7]], district_shapes$ras[[
 DISTRICT_IND = c(2,3,4,5,6,7,9)
 
 district_shapes <- district_shapes %>%
-  select(c("PROVINSI","KABKOT","geometry", "ras")) %>%
+  dplyr::select(c("PROVINSI","KABKOT","geometry", "ras")) %>%
   rename(province_name=PROVINSI,
          district_name=KABKOT) %>%
   slice(DISTRICT_IND)
