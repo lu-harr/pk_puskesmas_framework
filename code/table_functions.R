@@ -260,7 +260,7 @@ summary_xtable = function(tab,
 # todo here ...
 
 ranked_map = function(all_points, map_tweaks, ranks, regency, catch_tag, outpath,
-                      ranked=10, malinau_zoom=FALSE, out=TRUE){
+                      ranked=min(nrow(all_points), 10), malinau_zoom=FALSE, out=TRUE){
   # order points
   all_points = all_points[ranks,]
   kabkot_name = str_to_title(regency)
@@ -268,49 +268,40 @@ ranked_map = function(all_points, map_tweaks, ranks, regency, catch_tag, outpath
   
   if (out == TRUE){
     # start first plot
-    png(paste0(outpath, kabkot_tag, "_", catch_tag, "_rank_map.png"),
-        width = 2000,
-        height = 2000,
-        pointsize = 40)
-    par(mar=c(6.1,6.1,6.1,6.1), xpd = TRUE)
+    # png(paste0(outpath, kabkot_tag, "_", catch_tag, "_rank_map.png"),
+    #     width = 2000,
+    #     height = 2000,
+    #     pointsize = 40)
+    # par(mar=c(6.1,8.1,8.1,8.1), xpd = TRUE)
     plot(st_geometry(district_shapes[district_shapes$district_name == regency,]), 
-         main=kabkot_name, lwd=2, cex.main=2)
+         #main=paste0(kabkot_name, ": ", catch_tag, " catchments"), 
+         lwd=2, cex.main=2)
   }
   
-  ext = extent(trim(district_shapes$ras[[which(district_shapes$district_name == regency)]]))
+  # ext = extent(trim(district_shapes$ras[[which(district_shapes$district_name == regency)]]))
   ext = par()$usr
-  if (regency == "NUNUKAN"){
-    lablocs = rbind(cbind(x = seq(ext[1], ext[2], length.out = 10), 
-                                                  y = rep(ext[3], 10)),
-                                            cbind(x = seq(ext[1], ext[2], length.out = 10), 
-                                                  y = rep(ext[4], 10)))
-  } else {
-    lablocs = data.frame()
-  }
-  
   
   if (nrow(lablocs) == 0){
     label_radius = min(ext[2] - ext[1], ext[4] - ext[3]) * 0.6
     centre = unlist(st_centroid(st_geometry(district_shapes[district_shapes$district_name == regency,])))
-    message(centre)
   } else {
     label_radius = 0
     centre = c()
   }
   
-  
   centre = c(map_tweaks$lon, map_tweaks$lat)
   label_radius = map_tweaks$radius
   gap = map_tweaks$gap
-  
+  n_toadstools = map_tweaks$n_toadstools
   
   plot_sites_radius_pusk(ranked_sites = all_points[(1: ranked), c("lon", "lat")],
                          labs = sapply(1: ranked, function(x){paste0(x, ". ", all_points[x,"name"])}),
                          label_radius = label_radius,
                          centre = centre,
                          lablocs = lablocs,
-                         #testing = TRUE,
+                         # testing = TRUE,
                          gap = gap,
+                         n_toadstools = n_toadstools,
                          line_col = "black",
                          lab_col = "black")
   
@@ -326,9 +317,11 @@ ranked_map = function(all_points, map_tweaks, ranks, regency, catch_tag, outpath
   
   # add cities in
   tmp = idn_cities[idn_cities$relevant.regency == regency,]
-  points(tmp$lon, tmp$lat, col="blue", lwd=4)
-  text(tmp$lon, tmp$lat, labels=tmp$Name, col="blue", pos=4,
-       font=2,cex=1.1)
+  if (nrow(tmp) > 0){
+    points(tmp$lon, tmp$lat, col="blue", lwd=4)
+    text(tmp$lon, tmp$lat, labels=tmp$Name, col="blue", pos=4,
+         font=2,cex=1.1)
+  }
   
   
   if (malinau_zoom == TRUE){
@@ -342,7 +335,7 @@ ranked_map = function(all_points, map_tweaks, ranks, regency, catch_tag, outpath
           col="red", lty=2, lwd=3)
   } else {
     # yeet out of function
-    dev.off()
+    # dev.off()
     return(TRUE)
   }
   # or keep going to second plot

@@ -210,28 +210,87 @@ idn_cities = read.csv2("~/Desktop/knowlesi/data/raw/idn_cities.csv", header = TR
 tmp_latlon = as.numeric(unlist(strsplit(as.vector(idn_cities$latlon), ",")))
 
 idn_cities <- idn_cities %>%
-  mutate(relevant.regency = factor(idn_cities$relevant.regency, 
-                                   levels=levels(district_shapes$district_name)),
+  mutate(#relevant.regency = factor(idn_cities$relevant.regency, 
+        #                           levels=levels(district_shapes$district_name)),
          lat = as.numeric(tmp_latlon[seq(1,length(tmp_latlon),2)]),
          lon = as.numeric(tmp_latlon[seq(2,length(tmp_latlon),2)]))
 
 # ranked_map calls for all districts, dist & time
-message("Warning! DId you change DISTRICT_IND?!")
-ranked_map(stap_points, stap_rank_dist, "Tapanuli Selatan", 2, "stapanuli", "_dist")
-ranked_map(stap_points, stap_rank_time, "Tapanuli Selatan", 2, "stapanuli", "_time")
-
-ranks = summary_xtable(tab = tmp_dist_summ,
-                       row_index = which(health_sites$regency == regency),
-                       dataset_vec = health_sites$dataset,
-                       rank_col = 3,
-                       rank_only = TRUE)
-ranked_map(health_sites[which(health_sites$regency == regency),],
-           ranks = ranks,
-           regency = regency,
-           catch_tag = "dist",
-           outpath = "output/district_maps/")
+# message("Warning! DId you change DISTRICT_IND?!")
+# ranked_map(stap_points, stap_rank_dist, "Tapanuli Selatan", 2, "stapanuli", "_dist")
+# ranked_map(stap_points, stap_rank_time, "Tapanuli Selatan", 2, "stapanuli", "_time")
 
 
+
+dist_map_tweaks = data.frame(district = c("TAPANULI SELATAN","TAPANULI TENGAH", "DAIRI",
+                                          "LANGKAT", "PAKPAK BHARAT", "MALINAU", "NUNUKAN"),
+                       lon = c(99.258049, 98.8, 98.3, 98.25, 98.25, 115.8, 116.7),
+                       lat = c(1.52, 2.15, 2.85,3.56, 2.55, 2.5, 4),
+                       radius = c(0.68, 0.74, 0.4, 0.6, 0.25, 1.9,1.27),
+                       gap = c(0.98, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99),
+                       n_toadstools = c(30, 40, 40, 30, 40, 35, 30))
+
+time_map_tweaks = data.frame(district = c("TAPANULI SELATAN","TAPANULI TENGAH", "DAIRI",
+                                          "LANGKAT", "PAKPAK BHARAT", "MALINAU", "NUNUKAN"),
+                             lon = c(99.258049, 99.1, 98.25, 98.22, 98.25, 115.8, 116.7),
+                             lat = c(1.52, 2.2, 2.8,3.72, 2.55, 2.5, 4),
+                             radius = c(0.68, 1, 0.4, 0.55, 0.25, 1.9,1.27),
+                             gap = c(0.98, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99),
+                             n_toadstools = c(30, 50, 40, 20, 40, 35, 30))
+
+stretch_map_tweaks = data.frame(district = c("TAPANULI SELATAN","TAPANULI TENGAH", "DAIRI",
+                                             "LANGKAT", "PAKPAK BHARAT", "MALINAU", "NUNUKAN"),
+                                lon = c(99.258049, 99.2, 98.25, 98.22, 98.25, 115.7, 116.7),
+                                lat = c(1.52, 2.2, 2.8,3.72, 2.55, 2.5, 4),
+                                radius = c(0.68, 1.1, 0.4, 0.55, 0.25, 1.9,1.27),
+                                gap = c(0.98, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99),
+                                n_toadstools = c(30, 50, 40, 20, 40, 35, 30))
+
+# have folded this into 1*3 figures for each district
+# probably needs a subplot label?
+for (regency in district_shapes$district_name){
+  png(paste0("output/district_maps/", tolower(gsub(" ", "_", regency)), "_all_rank_map.png"),
+      width = 4000,
+      height = 1200,
+      pointsize = 40)
+  par(mar=c(6.1,8.1,6.1,8.1), oma = c(0,0,2,0), mfrow=c(1,3), xpd = TRUE)
+  
+  ranks = summary_xtable(tab = tmp_dist_summ,
+                         row_index = which(health_sites$regency == regency),
+                         dataset_vec = health_sites$dataset,
+                         rank_col = 3,
+                         rank_only = TRUE)
+  ranked_map(all_points = health_sites[which(health_sites$regency == regency),],
+             map_tweaks = dist_map_tweaks[which(dist_map_tweaks$district == regency),],
+             ranks = ranks,
+             regency = regency,
+             catch_tag = "dist",
+             outpath = "output/district_maps/")
+  ranks = summary_xtable(tab = tmp_time_summ,
+                         row_index = which(health_sites$regency == regency),
+                         dataset_vec = health_sites$dataset,
+                         rank_col = 3,
+                         rank_only = TRUE)
+  ranked_map(all_points = health_sites[which(health_sites$regency == regency),],
+             map_tweaks = time_map_tweaks[which(time_map_tweaks$district == regency),],
+             ranks = ranks,
+             regency = regency,
+             catch_tag = "time",
+             outpath = "output/district_maps/")
+  ranks = summary_xtable(tab = tmp_stretch_summ,
+                         row_index = which(health_sites$regency == regency),
+                         dataset_vec = health_sites$dataset,
+                         rank_col = 3,
+                         rank_only = TRUE)
+  ranked_map(all_points = health_sites[which(health_sites$regency == regency),],
+             map_tweaks = stretch_map_tweaks[which(stretch_map_tweaks$district == regency),],
+             ranks = ranks,
+             regency = regency,
+             catch_tag = "stretch",
+             outpath = "output/district_maps/")
+  mtext(str_to_title(regency), outer=TRUE, cex=1.4)
+  dev.off()
+}
 
 
 
