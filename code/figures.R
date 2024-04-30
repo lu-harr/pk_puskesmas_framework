@@ -5,13 +5,73 @@ library(wesanderson)
 #TODO
 # fix colour palette - purps is too grey (or change background to not be grey)
 
-
-
-
-purps = c("#F0E6FC","#DAC7EE","#BC95E9","#B582EE","#9C59E5","#A253F6","#831FE8","#6711D1")
+purps = c("#F0E6FC","#DAC7EE","#BC95E9","#B582EE","#9C59E5","#6711D1")
 purps = brewer.pal(9,"Purples")
 bg_col = "grey95"
 # The trouble with these purps is there's some grey lookin things that are hard to distinguish from bg ..
+
+###############################################################################
+# MAPS FIGURE
+# would be good to get colour schemes the same across the whole figure
+
+library(sf)
+world_ras = st_read("~/Desktop/knowlesi/data/raw/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>%
+  filter(NAME %in% c("Singapore","Thailand", "Indonesia",
+                            "Philippines","Cambodia",
+                            "Vietnam", "Brunei", "Malaysia")) %>%
+  st_simplify(dTolerance=1000) %>%
+  rasterize(lulc_covs$human_pop)
+
+{png("figures/big_map.png",
+     height=2800,
+     width=3000,
+     pointsize=30)
+
+#par(oma=c(20,10,20,10))
+par(omd=c(0.2,0.8,0.25,0.75))
+#par(fig)
+
+plot(world_ras, col = bg_col,
+     main = "Study area: Selected districts in Indonesia",
+     xlab = "Longitude", ylab = "Latitude",
+     cex.main=1.8, cex.lab=1.3, legend=FALSE)
+plot(lulc_covs$objective, col=viridis(100), add=TRUE)
+plot(st_geometry(district_shapes), add=TRUE, col="#BC95E9")
+
+usr = par()$usr # extremes of the user coordinates of the plotting region
+plt = par()$plt # coordinates of the plot region as fractions of the current figure region
+
+message(paste0(usr, collapse=", "))
+message(paste0(plt, collapse=", "))
+message(paste0(par()$fig, collapse=", "))
+
+par(oma=c(0,0,0,0), mar=c(1,1,4.1,1), new=TRUE, mfrow=c(4,4), mfg=c(1,1))
+
+for (district in c("LANGKAT", "DAIRI", "TAPANULI TENGAH", "NUNUKAN")){
+  plot(st_geometry(district_shapes[district_shapes$district_name == district,]))
+  plot(trim(mask(lulc_covs$objective, district_shapes[district_shapes$district_name == district,])),
+       col=viridis(100), add=TRUE, legend=FALSE)
+  mtext(str_to_title(district), 3, cex=1.3)
+}
+
+par(oma=c(0,0,0,0), mar=c(4.1,1,1,1), new=TRUE, mfrow=c(4,4), mfg=c(4,1))
+
+for (district in c("PAKPAK BHARAT", "TAPANULI SELATAN", "MALINAU")){
+  plot(st_geometry(district_shapes[district_shapes$district_name == district,]))
+  plot(trim(mask(lulc_covs$objective, district_shapes[district_shapes$district_name == district,])),
+       col=viridis(100), add=TRUE, legend=FALSE)
+  mtext(str_to_title(district), 1, cex=1.3)
+}
+
+par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=TRUE, mfrow=c(1,1))
+plot(0, xlim=c(0,1), ylim=c(0,1), type="n", axes=FALSE)
+lines(c(plt[1], 0.5), c(plt[3], 0.5))
+
+dev.off()}
+
+
+###############################################################################
+# CATCHMENT DEMO FIGURE 
 
 getDistCatchUnmasked <- function(point, radius_m, ras){
   # function to give me a raster of pixels in the distance-based catchment
@@ -176,12 +236,8 @@ subfigure_label("(f)", c(0.1,0.9))
 
 dev.off()}
 
-
-
 # ... need unmasked version of getdistance catch
 # not sure if I'm getting the best picture out of Malinau yet ..
-
-
 
 ###############################################################################
 # MULTI-PANEL FIGURE OF "ECO-TYPE" SURFACES

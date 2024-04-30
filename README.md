@@ -2,7 +2,8 @@
 
 Code repo attached to draft thesis chapter / paper
 
-#### TODO
+### TODO
+  - mask lulc_covs to sumatra/kalimantan only?
   - store info on duplicated sites somewhere
   - go through *all* the sites and check their coords ffs
   - write this so I'm grabbing health_sites directly from moh dataset, and prelim sites
@@ -16,4 +17,15 @@ Code repo attached to draft thesis chapter / paper
   - check somewhere that I'm only including travel time catchments with at least one pixel in them
   - ~am now thinking that I would prefer xtable to kable? idk? give it a squizz?~
     - ~recolour ecoconstraints column~ :)
-    - attach maps of "closest-point" catchments to the closest point supp ... could be a faff
+    
+#### FIGURES
+  - map: superimpose districts masked over predicted risk
+  - DONE catchment demos
+  - objective surfaces in key districts?
+  - supp: forest fringe/oil palm calculation figures
+  - supp: dominant land cover?
+  - DONE supp: tables
+  - DONE supp: maps with labelled ranked sites
+  - supp: sensitivity to catchment definition: raw/ranked for travel time/distance
+  - supp: sensitivity to site location: for travel time/distance
+  - maps of "closest-point" catchments for all districts
