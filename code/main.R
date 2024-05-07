@@ -71,25 +71,27 @@ check_empty_catches <- lapply(health_sites$time_catch,
 which(unlist(check_empty_catches) == TRUE)
 health_sites <- health_sites[-c(which(unlist(check_empty_catches) == TRUE)),]
 
+source("code/catchment_summary.R")
+
 dist_catch_summary = lapply(health_sites$dist_catch,
                             catchment_summary_stats, 
                             lulc_covs)
-dist_catch_summary = lapply(1:nrow(health_sites),
-                            function(x){
-                              message(x)
-                              catchment_summary_stats(health_sites[[x, "dist_catch"]],
-                                                      lulc_covs)
-                              })
+# dist_catch_summary = lapply(1:nrow(health_sites),
+#                             function(x){
+#                               message(x)
+#                               catchment_summary_stats(health_sites[[x, "dist_catch"]],
+#                                                       lulc_covs)
+#                               })
 
 time_catch_summary = lapply(health_sites$time_catch,
                             catchment_summary_stats, 
                             lulc_covs)
-time_catch_summary = lapply(1:nrow(health_sites),
-                            function(x){
-                              message(x)
-                              catchment_summary_stats(health_sites[[x, "time_catch"]],
-                                                      lulc_covs)
-                            })
+# time_catch_summary = lapply(1:nrow(health_sites),
+#                             function(x){
+#                               message(x)
+#                               catchment_summary_stats(health_sites[[x, "time_catch"]],
+#                                                       lulc_covs)
+#                             })
 
 # All of these should have at least one pixel to themselves if the duplicate removal worked?
 # although I think I'm using centroid locations so perhaps not if there is a site in an adjacent pixel
@@ -97,12 +99,12 @@ time_catch_summary = lapply(1:nrow(health_sites),
 stretch_catch_summary = lapply(health_sites$stretch_catch,
                                catchment_summary_stats,
                                lulc_covs)
-stretch_catch_summary = lapply(1:nrow(health_sites),
-                            function(x){
-                              message(x)
-                              catchment_summary_stats(health_sites[[x, "stretch_catch"]],
-                                                      lulc_covs)
-                            })
+# stretch_catch_summary = lapply(1:nrow(health_sites),
+#                             function(x){
+#                               message(x)
+#                               catchment_summary_stats(health_sites[[x, "stretch_catch"]],
+#                                                       lulc_covs)
+#                             })
 # I'm through !
 
 library(data.table)
@@ -151,15 +153,15 @@ names(tmp_stretch_summ) = c("Name", "No' Pixels", "Objective Mean", "Objective S
 # now to make up those tables ...
 source("code/table_functions.R")
 
-outpath = "output/tables/"
-for (regency in district_shapes$district_name){
-  summary_table_regency(tab = tmp_dist_summ,
-                        row_index = which(health_sites$regency == regency),
-                        path = paste0(outpath, tolower(gsub(" ", "_", regency)), "_dist_tab.html"),
-                        dataset_vec = health_sites$dataset,
-                        cap = paste0(str_to_title(regency), " puskesmas (distance catchments)"), 
-                        rank_col=2)
-}
+# outpath = "output/tables/"
+# for (regency in district_shapes$district_name){
+#   summary_table_regency(tab = tmp_dist_summ,
+#                         row_index = which(health_sites$regency == regency),
+#                         path = paste0(outpath, tolower(gsub(" ", "_", regency)), "_dist_tab.html"),
+#                         dataset_vec = health_sites$dataset,
+#                         cap = paste0(str_to_title(regency), " puskesmas (distance catchments)"), 
+#                         rank_col=2)
+# }
 
 # malinau_rank_dist = summary_table_regency(tab = tmp_dist_summ,
 #                                           row_index = which(health_sites$regency == toupper("malinau")),
@@ -168,39 +170,84 @@ for (regency in district_shapes$district_name){
 #                                           cap = "Malinau sites (distance catchments)", 
 #                                           rank_col=3)
 
-# summary_xtable(tab = tmp_dist_summ,
+
+# summary_xtable(tab = tmp_time_summ,
 #                row_index = which(health_sites$regency == toupper("malinau")),
 #                dataset_vec = health_sites$dataset,
-#                cap = "Malinau sites (distance catchments)", 
+#                cap = "Malinau sites (time catchments)",
 #                rank_col=3)
 
-sink("output/tables/dist.tex")
+#############################################################
+# script to do this by catchment type:
+# sink("output/tables/dist.tex")
+# for (regency in district_shapes$district_name){
+#   summary_xtable(tab = tmp_dist_summ,
+#                  row_index = which(health_sites$regency == regency),
+#                  dataset_vec = health_sites$dataset,
+#                  cap = paste0(str_to_title(regency), " sites (distance catchments)"), 
+#                  rank_col=3)
+# }
+# sink()
+# 
+# sink("output/tables/time.tex")
+# for (regency in district_shapes$district_name){
+#   summary_xtable(tab = tmp_time_summ,
+#                  row_index = which(health_sites$regency == regency),
+#                  dataset_vec = health_sites$dataset,
+#                  cap = paste0(str_to_title(regency), " sites (travel time catchments)"), 
+#                  rank_col=3)
+# }
+# sink()
+# 
+# sink("output/tables/stretch.tex")
+# for (regency in district_shapes$district_name){
+#   summary_xtable(tab = tmp_stretch_summ,
+#                  row_index = which(health_sites$regency == regency),
+#                  dataset_vec = health_sites$dataset,
+#                  cap = paste0(str_to_title(regency), " sites (``closest point'' catchments)"), 
+#                  rank_col=3)
+# }
+# sink()
+#############################################################
+
+# script to do the same thing by district and wrap the figures in there too:
+
+sink("output/tables/all_tables_by_district.tex")
 for (regency in district_shapes$district_name){
+  cat(paste0("\\subsubsection{", str_to_title(regency), "}\n"))
+  
   summary_xtable(tab = tmp_dist_summ,
                  row_index = which(health_sites$regency == regency),
                  dataset_vec = health_sites$dataset,
-                 cap = paste0(str_to_title(regency), " sites (distance catchments)"), 
+                 cap = paste0(str_to_title(regency), " sites (distance catchments, x km)"), 
+                 lab = paste0("tab:", gsub(" ", "_", str_to_lower(regency)), "_", "dist"),
                  rank_col=3)
-}
-sink()
 
-sink("output/tables/time.tex")
-for (regency in district_shapes$district_name){
   summary_xtable(tab = tmp_time_summ,
                  row_index = which(health_sites$regency == regency),
                  dataset_vec = health_sites$dataset,
-                 cap = paste0(str_to_title(regency), " sites (travel time catchments)"), 
+                 cap = paste0(str_to_title(regency), " sites (travel time catchments, x minutes)"), 
+                 lab = paste0("tab:", gsub(" ", "_", str_to_lower(regency)), "_", "time"),
                  rank_col=3)
-}
-sink()
-
-sink("output/tables/stretch.tex")
-for (regency in district_shapes$district_name){
+  
   summary_xtable(tab = tmp_stretch_summ,
                  row_index = which(health_sites$regency == regency),
                  dataset_vec = health_sites$dataset,
                  cap = paste0(str_to_title(regency), " sites (``closest point'' catchments)"), 
+                 lab = paste0("tab:", gsub(" ", "_", str_to_lower(regency)), "_", "stretch"),
                  rank_col=3)
+  
+  formatted_regency = gsub(" ", "_", str_to_lower(regency))
+  cat("\\begin{figure}\n")
+  cat("\\centering\n")
+  cat(paste0("\\includegraphics[width=\\textwidth]{figs/", formatted_regency,"_all_rank_map.png}\n"))
+  cat(paste0("\\caption{Mapped best ranked sites in ", str_to_title(regency), " using catchment definitions of (a) distance-based 
+  limits of x km (Table \\ref{tab:", formatted_regency,"_dist}); (b) travel time-based limits of x 
+  minutes (Table \\ref{tab:", formatted_regency,"_time}); and (c) tesselated catchments (Table 
+  \\ref{tab:", formatted_regency,"_stretch}).}\n"))
+  cat(paste0("\\label{fig:maps_", formatted_regency,"}\n"))
+  cat("\\end{figure}\n")
+  cat("\\clearpage\n")
 }
 sink()
 
@@ -226,7 +273,7 @@ dist_map_tweaks = data.frame(district = c("TAPANULI SELATAN","TAPANULI TENGAH", 
                                           "LANGKAT", "PAKPAK BHARAT", "MALINAU", "NUNUKAN"),
                        lon = c(99.258049, 98.8, 98.3, 98.25, 98.25, 115.8, 116.7),
                        lat = c(1.52, 2.15, 2.85,3.56, 2.55, 2.5, 4),
-                       radius = c(0.68, 0.74, 0.4, 0.6, 0.25, 1.9,1.27),
+                       radius = c(0.68, 0.74, 0.4, 0.6, 0.25, 2.4,1.27),
                        gap = c(0.98, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99),
                        n_toadstools = c(30, 40, 40, 30, 40, 35, 30))
 
@@ -234,7 +281,7 @@ time_map_tweaks = data.frame(district = c("TAPANULI SELATAN","TAPANULI TENGAH", 
                                           "LANGKAT", "PAKPAK BHARAT", "MALINAU", "NUNUKAN"),
                              lon = c(99.258049, 99.1, 98.25, 98.22, 98.25, 115.8, 116.7),
                              lat = c(1.52, 2.2, 2.8,3.72, 2.55, 2.5, 4),
-                             radius = c(0.68, 1, 0.4, 0.55, 0.25, 1.9,1.27),
+                             radius = c(0.68, 1, 0.4, 0.55, 0.25, 2.4,1.27),
                              gap = c(0.98, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99),
                              n_toadstools = c(30, 50, 40, 20, 40, 35, 30))
 
@@ -242,7 +289,7 @@ stretch_map_tweaks = data.frame(district = c("TAPANULI SELATAN","TAPANULI TENGAH
                                              "LANGKAT", "PAKPAK BHARAT", "MALINAU", "NUNUKAN"),
                                 lon = c(99.258049, 99.2, 98.25, 98.22, 98.25, 115.7, 116.7),
                                 lat = c(1.52, 2.2, 2.8,3.72, 2.55, 2.5, 4),
-                                radius = c(0.68, 1.1, 0.4, 0.55, 0.25, 1.9,1.27),
+                                radius = c(0.68, 1.1, 0.4, 0.55, 0.25, 2.4,1.27),
                                 gap = c(0.98, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99),
                                 n_toadstools = c(30, 50, 40, 20, 40, 35, 30))
 
@@ -250,10 +297,10 @@ stretch_map_tweaks = data.frame(district = c("TAPANULI SELATAN","TAPANULI TENGAH
 # probably needs a subplot label?
 for (regency in district_shapes$district_name){
   png(paste0("output/district_maps/", tolower(gsub(" ", "_", regency)), "_all_rank_map.png"),
-      width = 4000,
-      height = 1200,
+      width = 3200,
+      height = 2800,
       pointsize = 40)
-  par(mar=c(6.1,8.1,6.1,8.1), oma = c(0,0,2,0), mfrow=c(1,3), xpd = TRUE)
+  par(mar=c(6.1,7.1,6.1,7.1), oma=c(1.5,1.5,1.5,1.5), mfrow=c(2,2), xpd = NA)
   
   ranks = summary_xtable(tab = tmp_dist_summ,
                          row_index = which(health_sites$regency == regency),
@@ -288,7 +335,7 @@ for (regency in district_shapes$district_name){
              regency = regency,
              catch_tag = "stretch",
              outpath = "output/district_maps/")
-  mtext(str_to_title(regency), outer=TRUE, cex=1.4)
+  #mtext(str_to_title(regency), outer=TRUE, cex=2)
   dev.off()
 }
 

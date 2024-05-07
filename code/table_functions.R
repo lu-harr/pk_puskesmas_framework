@@ -140,7 +140,8 @@ summary_table_regency = function(tab,
 
 set_bg_col <- function(vec, pal){
   out = pal[as.numeric(cut(vec, breaks=length(pal)-1))]
-  out[is.na(out)] = "FFFFFF"
+  out[is.na(out)] = "FFFFFF" # set NA backgrounds to 0
+  out[is.na(vec)] = "FFFFFF"
   return(out)
 }
 
@@ -154,6 +155,7 @@ summary_xtable = function(tab,
                           row_index,
                           dataset_vec, 
                           cap = " ", 
+                          lab = " ",
                           rank_col = 0,
                           npoints_to_rank = min(10, nrow(tab)),
                           lu_crits = land_use_crits,
@@ -237,7 +239,8 @@ summary_xtable = function(tab,
                                  "}{",`Forest Loss`, "}"))
     
   xtab <- xtable::xtable(tab,
-                         caption = cap)
+                         caption = cap,
+                         label = lab)
   
   #addtorow <- list()
   #addtorow$pos <- list(0)
@@ -281,13 +284,9 @@ ranked_map = function(all_points, map_tweaks, ranks, regency, catch_tag, outpath
   # ext = extent(trim(district_shapes$ras[[which(district_shapes$district_name == regency)]]))
   ext = par()$usr
   
-  if (nrow(lablocs) == 0){
     label_radius = min(ext[2] - ext[1], ext[4] - ext[3]) * 0.6
     centre = unlist(st_centroid(st_geometry(district_shapes[district_shapes$district_name == regency,])))
-  } else {
-    label_radius = 0
-    centre = c()
-  }
+ 
   
   centre = c(map_tweaks$lon, map_tweaks$lat)
   label_radius = map_tweaks$radius
@@ -298,13 +297,14 @@ ranked_map = function(all_points, map_tweaks, ranks, regency, catch_tag, outpath
                          labs = sapply(1: ranked, function(x){paste0(x, ". ", all_points[x,"name"])}),
                          label_radius = label_radius,
                          centre = centre,
-                         lablocs = lablocs,
+                         # lablocs = lablocs,
                          # testing = TRUE,
                          gap = gap,
                          n_toadstools = n_toadstools,
                          line_col = "black",
-                         lab_col = "black")
-  
+                         lab_col = "black",
+                         lab_cex = 1.4)
+   
   points(all_points[ranked+1:nrow(all_points), c("lon", "lat")], pch=4, 
          col=ifelse(all_points$dataset[ranked+1:nrow(all_points)] == "prelim", "red", "grey70"), lwd=4)
   points(all_points[1:ranked, c("lon", "lat")], pch=4, 
