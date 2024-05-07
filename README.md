@@ -17,16 +17,18 @@ Code repo attached to draft thesis chapter / paper
   - check somewhere that I'm only including travel time catchments with at least one pixel in them
   - ~am now thinking that I would prefer xtable to kable? idk? give it a squizz?~
     - ~recolour ecoconstraints column~ :)
-  - tables need labels! Organise by district instead of catchment type!
+  - ~tables need labels! Organise by district instead of catchment type!~
     
 #### FIGURES
-  - map: superimpose districts masked over predicted risk
-  - DONE catchment demos
+  - ~DONE map: superimpose districts masked over predicted risk~
+  - ~DONE catchment demos~
   - objective surfaces in key districts?
   - supp: forest fringe/oil palm calculation figures
   - supp: dominant land cover?
-  - DONE supp: tables
-  - DONE supp: maps with labelled ranked sites
+  - ~DONE supp: tables~
+  - ~DONE supp: maps with labelled ranked sites~
+  - multiple site selection
+  - multiple objective selection ? Left panel: geographic space, combinations of sites on front, right panel: objective space, with front, and enumerated objectives for all sampling designs
   - supp: sensitivity to catchment definition: raw/ranked for travel time/distance
   - supp: sensitivity to site location: for travel time/distance
-  - maps of "closest-point" catchments for all districts
+  - supp: maps of "closest-point" catchments for all districts
