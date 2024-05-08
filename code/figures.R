@@ -208,11 +208,11 @@ malinau_eg2 <- list(getDistCatchUnmasked(malinau_sites[PICK_MALINAU2,], 20000,
 point_lwd = 5
 border_lwd = 2
 
-subfigure_label <- function(lab, loc){
+subfigure_label <- function(lab, loc, cex=2){
   ext <- par()$usr
   text(x = ext[1] + loc[1]*(ext[2] - ext[1]), 
        y = ext[3] + loc[2]*(ext[4] - ext[3]),
-       labels = lab, cex=1.4)
+       labels = lab, cex=cex)
 }
 
 {png("figures/catchment_demos.png",
