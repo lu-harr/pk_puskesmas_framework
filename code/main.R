@@ -33,22 +33,23 @@ source(paste0(code_path, "thin_duplicate_sites.R"))
 
 source(paste0(code_path, "catchment_functions.R"))
 
-health_sites$dist_catch = apply(health_sites, 1,
-                                getDistanceCatchment, 
-                                radius_m=30000, ras=lulc_covs$objective)
-
-health_sites$time_catch = sapply(1:nrow(health_sites), gettimeCatchment,
-                                 points=health_points,
-                                 transition_surfaces=transition_surfaces,
-                                 island_groups=health_sites$island_group,
-                                 to_surface=lulc_covs$objective)
-
-health_sites$stretch_catch = wrapNearestSiteCatchment(district_shapes,
-                                                      health_sites)
-
-# stretch catch map doesn't look too bad?
-plot(sum(stack(health_sites$stretch_catch), na.rm=TRUE))
-plot(st_geometry(district_shapes), add=TRUE)
+# health_sites$dist_catch = apply(health_sites, 1,
+#                                 getDistanceCatchment, 
+#                                 radius_m=30000, ras=lulc_covs$objective)
+# 
+# health_sites$time_catch = sapply(1:nrow(health_sites), getTimeCatchment,
+#                                  points=health_points,
+#                                  transition_surfaces=transition_surfaces,
+#                                  island_groups=health_sites$island_group,
+#                                  to_surface=lulc_covs$objective,
+#                                  time_cap=100)
+# 
+# health_sites$stretch_catch = wrapNearestSiteCatchment(district_shapes,
+#                                                       health_sites)
+# 
+# # stretch catch map doesn't look too bad?
+# plot(sum(stack(health_sites$stretch_catch), na.rm=TRUE))
+# plot(st_geometry(district_shapes), add=TRUE)
 
 
 # need to save progress here please:
@@ -76,22 +77,10 @@ source("code/catchment_summary.R")
 dist_catch_summary = lapply(health_sites$dist_catch,
                             catchment_summary_stats, 
                             lulc_covs)
-# dist_catch_summary = lapply(1:nrow(health_sites),
-#                             function(x){
-#                               message(x)
-#                               catchment_summary_stats(health_sites[[x, "dist_catch"]],
-#                                                       lulc_covs)
-#                               })
 
 time_catch_summary = lapply(health_sites$time_catch,
                             catchment_summary_stats, 
                             lulc_covs)
-# time_catch_summary = lapply(1:nrow(health_sites),
-#                             function(x){
-#                               message(x)
-#                               catchment_summary_stats(health_sites[[x, "time_catch"]],
-#                                                       lulc_covs)
-#                             })
 
 # All of these should have at least one pixel to themselves if the duplicate removal worked?
 # although I think I'm using centroid locations so perhaps not if there is a site in an adjacent pixel
@@ -99,12 +88,6 @@ time_catch_summary = lapply(health_sites$time_catch,
 stretch_catch_summary = lapply(health_sites$stretch_catch,
                                catchment_summary_stats,
                                lulc_covs)
-# stretch_catch_summary = lapply(1:nrow(health_sites),
-#                             function(x){
-#                               message(x)
-#                               catchment_summary_stats(health_sites[[x, "stretch_catch"]],
-#                                                       lulc_covs)
-#                             })
 # I'm through !
 
 library(data.table)
@@ -212,7 +195,7 @@ source("code/table_functions.R")
 
 # script to do the same thing by district and wrap the figures in there too:
 
-sink("output/tables/all_tables_by_district.tex")
+{sink("output/tables/all_tables_by_district.tex")
 for (regency in district_shapes$district_name){
   cat(paste0("\\subsubsection{", str_to_title(regency), "}\n"))
   
@@ -249,7 +232,7 @@ for (regency in district_shapes$district_name){
   cat("\\end{figure}\n")
   cat("\\clearpage\n")
 }
-sink()
+sink()}
 
 # now for the maps
 # read in cities locations
@@ -257,15 +240,8 @@ idn_cities = read.csv2("~/Desktop/knowlesi/data/raw/idn_cities.csv", header = TR
 tmp_latlon = as.numeric(unlist(strsplit(as.vector(idn_cities$latlon), ",")))
 
 idn_cities <- idn_cities %>%
-  mutate(#relevant.regency = factor(idn_cities$relevant.regency, 
-        #                           levels=levels(district_shapes$district_name)),
-         lat = as.numeric(tmp_latlon[seq(1,length(tmp_latlon),2)]),
+  mutate(lat = as.numeric(tmp_latlon[seq(1,length(tmp_latlon),2)]),
          lon = as.numeric(tmp_latlon[seq(2,length(tmp_latlon),2)]))
-
-# ranked_map calls for all districts, dist & time
-# message("Warning! DId you change DISTRICT_IND?!")
-# ranked_map(stap_points, stap_rank_dist, "Tapanuli Selatan", 2, "stapanuli", "_dist")
-# ranked_map(stap_points, stap_rank_time, "Tapanuli Selatan", 2, "stapanuli", "_time")
 
 
 

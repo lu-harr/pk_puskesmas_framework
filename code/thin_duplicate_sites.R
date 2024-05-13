@@ -28,27 +28,29 @@ health_sites[health_sites$name == "Kuta Buluh", c("lon", "lat")] =
 
 # par(mar=c(1,1,1,1), bty="n", mfrow=c(3,3))
 keep = c()
+binary_stack <- stack(district_shapes$ras)
+names(binary_stack) <- gsub(" ", "_", tolower(district_shapes$district_name))
 # dont_keep1 = c()
 # dont_keep2 = c()
 for (i in 1:nrow(district_shapes)){
-  ras = trim(district_shapes$ras[[i]])
-  values(ras)[!is.na(values(ras))] = 0
+  #ras = trim(district_shapes$ras[[i]])
+  values(binary_stack[[i]])[!is.na(values(binary_stack[[i]]))] = 0
   site_ind = which(health_sites$regency == district_shapes$district_name[i])
   sites = health_sites[site_ind,]
   if (nrow(sites) >= 1){
     for (j in 1:nrow(sites)){
-      tmp = cellFromXY(ras, sites[j, c("lon","lat")])
-      if (is.na(ras[tmp])){
+      tmp = cellFromXY(binary_stack[[i]], sites[j, c("lon","lat")])
+      if (is.na(binary_stack[[i]][tmp])){
         # points that have fallen off the raster
         message(paste0("OFF ", sites[j, "name"], j))
         # dont_keep2 = c(dont_keep2, site_ind[j])
       }
-      else if (ras[tmp] == 1){
+      else if (binary_stack[[i]][tmp] == 1){
         # points where there's already a site at that pixel
         message(paste0("dup ", sites[j, "name"], j))
         # dont_keep1 = c(dont_keep1, site_ind[j])
       } else {
-        ras[tmp] = 1
+        binary_stack[[i]][tmp] = 1
         keep = c(keep, site_ind[j])
       }
     }
