@@ -18,6 +18,7 @@ Code repo attached to draft thesis chapter / paper
   - ~am now thinking that I would prefer xtable to kable? idk? give it a squizz?~
     - ~recolour ecoconstraints column~ :)
   - ~tables need labels! Organise by district instead of catchment type!~
+  - Perhaps there should be a shiny app for navigating all the darn outputs?
     
 #### FIGURES
   - ~DONE map: superimpose districts masked over predicted risk~
@@ -30,5 +31,5 @@ Code repo attached to draft thesis chapter / paper
   - multiple site selection
   - multiple objective selection ? Left panel: geographic space, combinations of sites on front, right panel: objective space, with front, and enumerated objectives for all sampling designs
   - supp: sensitivity to catchment definition: raw/ranked for travel time/distance
-  - supp: sensitivity to site location: for travel time/distance
+  - supp: sensitivity to site location: for travel time only, wrt ranking table in main text
   - supp: maps of "closest-point" catchments for all districts
