@@ -3,6 +3,7 @@
 Code repo attached to draft thesis chapter / paper
 
 ### TODO
+  - STOP MESSING AROUND! SORT YOUR GIS OUT! THIS IS GETTING SILLY!
   - mask lulc_covs to sumatra/kalimantan only?
   - store info on duplicated sites somewhere
   - go through *all* the sites and check their coords ffs
@@ -15,13 +16,16 @@ Code repo attached to draft thesis chapter / paper
   - re-landing step isn't quite right ....
   - check crazy hard-coded threshold in catchment summary
   - check somewhere that I'm only including travel time catchments with at least one pixel in them
+  - get travel time catchments to be contiguous!
   - ~am now thinking that I would prefer xtable to kable? idk? give it a squizz?~
     - ~recolour ecoconstraints column~ :)
   - ~tables need labels! Organise by district instead of catchment type!~
   - Perhaps there should be a shiny app for navigating all the darn outputs?
+  - Are Malaysian Borneo pixels included in catchments??
     
 #### FIGURES
   - ~DONE map: superimpose districts masked over predicted risk~
+    - make orange all the same, lines wider
   - ~DONE catchment demos~
   - objective surfaces in key districts?
   - supp: forest fringe/oil palm calculation figures
