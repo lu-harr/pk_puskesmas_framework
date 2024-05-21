@@ -14,13 +14,7 @@ bg_col = "grey95"
 # MAPS FIGURE
 # would be good to get colour schemes the same across the whole figure
 
-library(sf)
-world_ras = st_read("~/Desktop/knowlesi/data/raw/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>%
-  filter(NAME %in% c("Singapore","Thailand", "Indonesia",
-                            "Philippines","Cambodia",
-                            "Vietnam", "Brunei", "Malaysia")) %>%
-  #st_simplify(dTolerance=0.1) %>%
-  rasterize(lulc_covs$human_pop)
+# world ras is now in sort_gis script
 
 #"#FFF5EB" "#FEE6CE" "#FDD0A2" "#FDAE6B" "#FD8D3C" "#F16913" "#D94801" "#A63603" "#7F2704"
 #"#BC95E9"
@@ -291,15 +285,21 @@ dev.off()}
 # OIL PALM FIGURE !
 # need to go back to work out where each of these surfaces were made?
 pres_mode = raster("~/Desktop/knowlesi/oil_palm/oilpalm_pres_mode.tif") %>%
-  crop(extent(lulc_covs)) # circular :(
+  crop(nw_idn_mask) %>%
+  mask(nw_idn_mask)
 values(pres_mode)[values(pres_mode) == 0] = NA
 mode_only = raster("~/Desktop/knowlesi/oil_palm/oilpalm_mode_only.tif") %>%
-  crop(extent(lulc_covs))
+  crop(nw_idn_mask) %>%
+  mask(nw_idn_mask)
 values(mode_only)[values(mode_only == 0)] = NA
 # who the feck knows where this is ...
 # danylo_all = raster('data/clean/raster/danylo5.tif')
-danylo_all = raster("~/Desktop/knowlesi/data/clean/raster/oilpalm_danylo.tif") %>%
-  crop(extent(lulc_covs))
+# is this it?
+danylo_all = raster("~/Desktop/knowlesi/oil_palm/oilpalm_noresample.tif") %>%
+  crop(nw_idn_mask) %>%
+  mask(nw_idn_shp)
+# this takes a while ... maybe this is why I didn't do it like this the first time ...
+# huh
 danylo_non_zero = danylo_all
 danylo_non_zero[values(danylo_non_zero) == 0] = NA
 
@@ -309,11 +309,9 @@ extent(lulc_covs)
 {png("figures/oilpalm_all.png",
     height=2800, width=2400, pointsize=55)
 par(oma=c(10,0.1,0.1,0.1), mar=c(0,0,0,0), fig=c(0,0.7,2/3,1), cex=0.5, bg="white", bty="n")
-plot(lulc_covs$human_pop, 
-     #xlim=extent(trim(pres_mode))[1:2],
+plot(world_ras, 
      col=viridis(100)[1], 
      legend=FALSE, 
-     #ylim=c(-6,6),
      cex.main=2, cex.lab=2, cex.axis=1.5, xaxt="n", legend.mar=-2, yaxt="n", bty="n")
 # add other regions in grey
 par(mar=c(0,0,0,0), fig=c(0,0.7,2/3,1), cex=0.5, new=TRUE, bg=NA, usr=check1$usr)

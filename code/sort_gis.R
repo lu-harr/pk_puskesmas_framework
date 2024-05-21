@@ -1,4 +1,45 @@
+# work out where the hell I'm getting this from ...
+# pretty sure it was the original model covariates
 lulc_covs <- stack("data/lulc_covs.grd")
+
+#####################################################
+world_ras = st_read("~/Desktop/knowlesi/data/raw/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>%
+  filter(NAME %in% c("Singapore","Thailand", "Indonesia",
+                     "Philippines","Cambodia",
+                     "Vietnam", "Brunei", "Malaysia")) %>%
+  rasterize(lulc_covs$human_pop)
+
+#####################################################
+# SORT OUT MASK
+# relocate these shps to catchment_paper dir
+nw_idn_shp <- st_read("~/Desktop/knowlesi/data/raw/admin/admin2013_1.shp") %>%
+  subset(COUNTRY_ID == "IDN") %>%
+  subset(NAME %in% c("SUMATERA UTARA",
+                     "SUMATERA BARAT",
+                     "SUMATERA SELATAN",
+                     "ACEH",
+                     "RIAU",
+                     "JAMBI",
+                     "BENGKULU",
+                     "LAMPUNG",
+                     "NANGGROE ACEH DARUSALAM",
+                     "KEPULAUAN RIAU",
+                     "BANGKA BELITUNG",
+                     "KALIMANTAN TENGAH",
+                     "KALIMANTAN SELATAN",
+                     "KALIMANTAN TIMUR",
+                     "KALIMANTAN BARAT",
+                     "KALIMANTAN UTARA",
+                     "KEPULAUAN BANGKA BELITUNG"))
+nw_idn_mask <- rasterize(nw_idn_shp, lulc_covs$human_pop)
+# there is a little hole in southern sumatra .. need to fill in eventually
+
+# this is the lulc_covs I want ... just need to reconfigure so the above isn't so circular
+lulc_covs <- lulc_covs %>%
+  mask(nw_idn_mask) %>%
+  trim()
+
+#####################################################
 
 # drop these shps into the catchment_paper dir eventually ... or use MalariaAtlas pkg
 idn_districts <- st_read('~/Desktop/knowlesi/pilot_sites/data/clean/idn_districts/idn_districts.shp')
@@ -13,8 +54,6 @@ district_names <- c("MALINAU",
                     "BULUNGAN",
                     "NUNUKAN",
                     "DAIRI")
-
-
 
 district_indices <- which(idn_districts$KABKOT %in% district_names)
 district_shapes <- idn_districts[district_indices,]
