@@ -19,13 +19,15 @@ bg_col = "grey95"
 #"#FFF5EB" "#FEE6CE" "#FDD0A2" "#FDAE6B" "#FD8D3C" "#F16913" "#D94801" "#A63603" "#7F2704"
 #"#BC95E9"
 
+"#F16913"
+
 oranges <- brewer.pal(9, "Oranges")[3:6]
 
 {png("figures/big_map.png",
      height=2800,
      width=3000,
      pointsize=30)
-  
+bg_col = "grey95"  
 midfig <- c(0.155,0.845,0.31,0.69)
 textcex <- 1.8
 axcex <- 1.4
@@ -48,7 +50,7 @@ par(fig=midfig, oma = c(0,0,0,0), mar=c(0,0,0,0), new=TRUE)
 plot(lulc_covs$brt_mean, col=viridis(ncolours), breaks=colbreaks,
      legend.mar=0, legend=FALSE, box=FALSE, cex.axis=axcex)
 par(fig=midfig, oma = c(0,0,0,0), mar=c(0,0,0,0), new=TRUE)
-plot(st_geometry(district_shapes), col=c("#FDD0A2", "#FDAE6B", "#FD8D3C", "#F16913"), add=TRUE)
+plot(st_geometry(district_shapes), col="#FD8D3C", add=TRUE, border="grey20", lwd=4)
 mtext("Longitude", 1, cex=textcex, line=2.5)
 mtext("Latitude", 2, cex=textcex, line=2.5)
 
@@ -103,7 +105,7 @@ for (district in 1:nrow(linedf)){
     unlist()
   lines(c(linedf$x[district], ((cent[1] - midusr[1]) / (midusr[2] - midusr[1])) * (midfig[2] - midfig[1]) + midfig[1]),
         c(linedf$y[district], ((cent[2] - midusr[3]) / (midusr[4] - midusr[3])) * (midfig[4] - midfig[3]) + midfig[3]), 
-        col="grey80", lwd=4)
+        col="grey20", lwd=3)
 }
 
 dev.off()}
@@ -295,29 +297,104 @@ values(mode_only)[values(mode_only == 0)] = NA
 # who the feck knows where this is ...
 # danylo_all = raster('data/clean/raster/danylo5.tif')
 # is this it?
-danylo_all = raster("~/Desktop/knowlesi/oil_palm/oilpalm_noresample.tif") %>%
-  crop(nw_idn_mask) %>%
-  mask(nw_idn_shp)
+
+# Might need to come back to this: (there's a hole in the raster)
+# danylo_all = raster("~/Desktop/knowlesi/oil_palm/oilpalm_noresample.tif") %>%
+#   crop(nw_idn_mask) %>%
+#   mask(nw_idn_shp)
+# writeRaster(danylo_all, "output/danylo_masked.tif")
+# danylo_non_zero = danylo_all
 # this takes a while ... maybe this is why I didn't do it like this the first time ...
 # huh
-danylo_non_zero = danylo_all
-danylo_non_zero[values(danylo_non_zero) == 0] = NA
+danylo_all <- raster("output/danylo_masked.tif")
+# grabbed this down from Spartan where I did the zeroing in blocks and then merged:
+danylo_op <- raster("output/danylo_op_only.tif") %>%
+  mask(nw_idn_shp)
+writeRaster(danylo_op, "output/danylo_op_masked.tif")
 
-extent(lulc_covs)
+bg_col = "grey70"
+pal = viridis(100)
+zero_col = pal[1]
+op_cols = pal[seq(50,100,length.out=37)] # pick some less dark cols from pal?
+  
+outer_extent = extent(lulc_covs)
+inset_extent = c(98.4, 99.4,0.9,2.1)
 
-# this is so dumb .. work on this at home some time :((
-{png("figures/oilpalm_all.png",
-    height=2800, width=2400, pointsize=55)
-par(oma=c(10,0.1,0.1,0.1), mar=c(0,0,0,0), fig=c(0,0.7,2/3,1), cex=0.5, bg="white", bty="n")
-plot(world_ras, 
-     col=viridis(100)[1], 
-     legend=FALSE, 
-     cex.main=2, cex.lab=2, cex.axis=1.5, xaxt="n", legend.mar=-2, yaxt="n", bty="n")
-# add other regions in grey
-par(mar=c(0,0,0,0), fig=c(0,0.7,2/3,1), cex=0.5, new=TRUE, bg=NA, usr=check1$usr)
-plot(world_ras, col="grey70", lwd=2, add=TRUE, legend=FALSE)
-
+inset_box <- function(ext=inset_extent){
+  lines(c(ext[1], ext[2], ext[2], ext[1], ext[1]),
+        c(ext[3], ext[3], ext[4], ext[4], ext[3]),
+        col="red", lwd=4)
 }
+
+{png("figures/oilpalm_all.png",
+    height=2900, width=2400, pointsize=55)
+
+moma = c(6,0.1,0.1,0.1)
+mmar = c(0,0,0,0)
+mfig = c(0,0.7,2/3,1)
+par(oma=moma, mar=mmar, fig=mfig)
+plot(crop(world_ras, outer_extent), col=bg_col, legend=FALSE,
+     xaxt="n", legend.mar=-2, yaxt="n")
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+plot(danylo_all, col=zero_col, legend=FALSE, 
+     xaxt="n", legend.mar=-2, yaxt="n",
+     xlim=outer_extent[1:2], ylim=outer_extent[3:4])
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+plot(danylo_op, col=op_cols, add=TRUE, legend=FALSE)
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+inset_box()
+
+mfig = c(0.7,1,2/3,1)
+par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
+plot(crop(danylo_all, inset_extent), col=zero_col, legend=FALSE, 
+     legend.mar=-2, yaxt="n", xaxt="n")
+par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
+plot(crop(danylo_op, inset_extent), col=op_cols, legend=FALSE, legend.mar=-2,
+     yaxt="n", xaxt="n")
+
+mfig = c(0,0.7,1/3,2/3)
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+plot(crop(world_ras, outer_extent), col=bg_col, legend=FALSE,
+     xaxt="n", legend.mar=-2, yaxt="n")
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+plot(lulc_covs$human_pop, col=zero_col, legend=FALSE, 
+     xaxt="n", legend.mar=-2, yaxt="n",
+     xlim=outer_extent[1:2], ylim=outer_extent[3:4])
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+plot(mode_only, col=op_cols, add=TRUE, legend=FALSE)
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+inset_box()
+
+mfig = c(0.7,1,1/3,2/3)
+par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
+plot(crop(lulc_covs$human_pop, inset_extent), col=zero_col, legend=FALSE, 
+     legend.mar=-2, yaxt="n", xaxt="n")
+par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
+plot(crop(mode_only, inset_extent), col=op_cols, legend=FALSE, legend.mar=-2,
+     yaxt="n", xaxt="n")
+
+mfig = c(0,0.7,0,1/3)
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+plot(crop(world_ras, outer_extent), col=bg_col, legend=FALSE,
+     xaxt="n", legend.mar=-2, yaxt="n")
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+plot(lulc_covs$human_pop, col=zero_col, legend=FALSE, 
+     xaxt="n", legend.mar=-2, yaxt="n",
+     xlim=outer_extent[1:2], ylim=outer_extent[3:4])
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+plot(pres_mode, col=op_cols, add=TRUE, legend=FALSE)
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+inset_box()
+
+mfig = c(0.7,1,0,1/3)
+par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
+plot(crop(lulc_covs$human_pop, inset_extent), col=zero_col, legend=FALSE, 
+     legend.mar=-2, yaxt="n", xaxt="n")
+par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
+plot(crop(pres_mode, inset_extent), col=op_cols, legend=FALSE, legend.mar=-2,
+     yaxt="n", xaxt="n")
+
+dev.off()}
 
 
 

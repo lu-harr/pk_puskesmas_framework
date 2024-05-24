@@ -315,6 +315,49 @@ for (regency in district_shapes$district_name){
   dev.off()
 }
 
+# Now just want map for Malinau/travel time catches .. 
+# will need to rig for zoom?
+ranks = summary_xtable(tab = tmp_time_summ,
+                       row_index = which(health_sites$regency == "MALINAU"),
+                       dataset_vec = health_sites$dataset,
+                       rank_col = 3,
+                       rank_only = TRUE)
 
+map_tweaks <- time_map_tweaks[which(time_map_tweaks$district == "MALINAU"),]
+all_points <- health_sites[which(health_sites$regency == "MALINAU"),]
+ext <- c(116.3,116.9,3,3.7)
+ncolours <- 100
+colbreaks <- seq(minValue(lulc_covs$objective), maxValue(lulc_covs$objective), 
+                 length.out=ncolours + 1)
+colbreaks[length(colbreaks)] <- colbreaks[length(colbreaks)] + 1e-7
 
+png(paste0("figures/", "malinau", "_time_rank_map.png"),
+    width = 1400,
+    height = 1400,
+    pointsize = 40)
+par(mar=c(6.1,7.1,6.1,7.1), oma=c(1.5,1.5,1.5,1.5), xpd = NA)
+plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]), lwd=2, cex.main=2)
+plot(trim(), col=viridis(ncolours), breaks=colbreaks)
+# check position of legend ...
+# chuck a raster in here? st_buffer()
+# want to skip 7,8,9,10
+plot_sites_radius_pusk(ranked_sites = all_points[ranks[1: 10], c("lon", "lat")],
+                       labs = sapply(1: ranked, function(x){paste0(x, ". ", all_points[x,"name"])}),
+                       label_radius = map_tweaks$radius,
+                       centre = c(map_tweaks$lon, map_tweaks$lat),
+                       # lablocs = lablocs,
+                       # testing = TRUE,
+                       gap = map_tweaks$gap,
+                       n_toadstools = map_tweaks$n_toadstools,
+                       line_col = "black",
+                       lab_col = "black",
+                       lab_cex = 1.4)
+lines(c(ext[1], ext[2], ext[2], ext[1], ext[1]),
+      c(ext[3], ext[3], ext[4], ext[4], ext[3]),
+      col="red", lwd=4)
+
+par(mar=c(6.1,7.1,6.1,7.1), oma=c(1.5,1.5,1.5,1.5), xpd = NA, fig=c(0.7,1,0,0.3))
+plot(crop(lulc_covs$objective, ext), col=viridis(ncolours), breaks=colbreaks)
+
+dev.off()
 
