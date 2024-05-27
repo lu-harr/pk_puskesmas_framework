@@ -4,6 +4,7 @@ Code repo attached to draft thesis chapter / paper
 
 ### TODO
   - STOP MESSING AROUND! SORT YOUR GIS OUT! THIS IS GETTING SILLY!
+    - Remove danylo_masked from git and put it somewhere else ... or split it up
   - mask lulc_covs to sumatra/kalimantan only?
   - store info on duplicated sites somewhere
   - go through *all* the sites and check their coords ffs

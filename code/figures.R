@@ -308,9 +308,7 @@ values(mode_only)[values(mode_only == 0)] = NA
 # huh
 danylo_all <- raster("output/danylo_masked.tif")
 # grabbed this down from Spartan where I did the zeroing in blocks and then merged:
-danylo_op <- raster("output/danylo_op_only.tif") %>%
-  mask(nw_idn_shp)
-writeRaster(danylo_op, "output/danylo_op_masked.tif")
+danylo_op <- raster("output/danylo_op_only.tif")
 
 bg_col = "grey70"
 pal = viridis(100)
@@ -319,12 +317,17 @@ op_cols = pal[seq(50,100,length.out=37)] # pick some less dark cols from pal?
   
 outer_extent = extent(lulc_covs)
 inset_extent = c(98.4, 99.4,0.9,2.1)
+xdisp <- 0.1
+ydisp <- 0.1
 
 inset_box <- function(ext=inset_extent){
   lines(c(ext[1], ext[2], ext[2], ext[1], ext[1]),
         c(ext[3], ext[3], ext[4], ext[4], ext[3]),
         col="red", lwd=4)
 }
+
+world_no_idn <- world_ras
+world_no_idn[world_no_idn < 2] = NA
 
 {png("figures/oilpalm_all.png",
     height=2900, width=2400, pointsize=55)
@@ -336,19 +339,25 @@ par(oma=moma, mar=mmar, fig=mfig)
 plot(crop(world_ras, outer_extent), col=bg_col, legend=FALSE,
      xaxt="n", legend.mar=-2, yaxt="n")
 par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
-plot(danylo_all, col=zero_col, legend=FALSE, 
+plot(danylo_all, col=zero_col, legend=FALSE,
      xaxt="n", legend.mar=-2, yaxt="n",
      xlim=outer_extent[1:2], ylim=outer_extent[3:4])
 par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
 plot(danylo_op, col=op_cols, add=TRUE, legend=FALSE)
 par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+plot(world_no_idn, col=bg_col, legend=FALSE, legend.mar=-2, xaxt="n", yaxt="n", add=TRUE)
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+subfigure_label(par()$usr, xdisp*0.5, ydisp, "(a)")
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
 inset_box()
 
 mfig = c(0.7,1,2/3,1)
 par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
-plot(crop(danylo_all, inset_extent), col=zero_col, legend=FALSE, 
+plot(crop(danylo_all, inset_extent), col=zero_col, legend=FALSE,
      legend.mar=-2, yaxt="n", xaxt="n")
 par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
+subfigure_label(par()$usr, xdisp, ydisp, "(b)")
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
 plot(crop(danylo_op, inset_extent), col=op_cols, legend=FALSE, legend.mar=-2,
      yaxt="n", xaxt="n")
 
@@ -363,6 +372,8 @@ plot(lulc_covs$human_pop, col=zero_col, legend=FALSE,
 par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
 plot(mode_only, col=op_cols, add=TRUE, legend=FALSE)
 par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+subfigure_label(par()$usr, xdisp*0.5, ydisp, "(c)")
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
 inset_box()
 
 mfig = c(0.7,1,1/3,2/3)
@@ -370,6 +381,8 @@ par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
 plot(crop(lulc_covs$human_pop, inset_extent), col=zero_col, legend=FALSE, 
      legend.mar=-2, yaxt="n", xaxt="n")
 par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
+subfigure_label(par()$usr, xdisp, ydisp, "(d)")
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
 plot(crop(mode_only, inset_extent), col=op_cols, legend=FALSE, legend.mar=-2,
      yaxt="n", xaxt="n")
 
@@ -384,6 +397,8 @@ plot(lulc_covs$human_pop, col=zero_col, legend=FALSE,
 par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
 plot(pres_mode, col=op_cols, add=TRUE, legend=FALSE)
 par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
+subfigure_label(par()$usr, xdisp*0.5, ydisp, "(e)")
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
 inset_box()
 
 mfig = c(0.7,1,0,1/3)
@@ -391,8 +406,20 @@ par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
 plot(crop(lulc_covs$human_pop, inset_extent), col=zero_col, legend=FALSE, 
      legend.mar=-2, yaxt="n", xaxt="n")
 par(mar=mmar, fig=mfig, oma=moma, new=TRUE)
+subfigure_label(par()$usr, xdisp, ydisp, "(f)")
+par(oma=moma, mar=mmar, fig=mfig, new=TRUE)
 plot(crop(pres_mode, inset_extent), col=op_cols, legend=FALSE, legend.mar=-2,
      yaxt="n", xaxt="n")
+
+
+par(mar=c(6,0.1,0.1,0.1), oma=c(0,0,0,0), fig=c(0,0.8,0,1))
+plot(pres_mode+1980, legend.only=TRUE, horizontal=TRUE, col=op_cols,
+     axis.args=list(cex.axis=0.8), legend.width=0.5, legend.shrink=0.7,
+     legend.args=list(text="Year", side=3, line=0.5, cex=1.1))
+par(mar=c(0.1,0.1,0.1,0.1), oma=c(0,0,0,0), fig=c(0,1,0,1), new=TRUE)
+plot(0, axes=FALSE)
+legend("bottomright", "No oil\npalm", xpd=NA, fill=viridis(100)[1], bty="n",
+       inset=c(0.15,0.05), cex=1.1)
 
 dev.off()}
 

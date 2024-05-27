@@ -1,3 +1,12 @@
+subfigure_label = function(plot_region, x_displacement, y_displacement, label,
+                           cex.label=1){
+  # gives me an (a)
+  text(plot_region[1] + (plot_region[2] - plot_region[1])*x_displacement, 
+       plot_region[3] + (plot_region[4] - plot_region[3])*y_displacement,
+       label, cex=cex.label)
+}
+
+
 my_simple_dist = function(pos1, pos2){
   # this was quicker than googling it :)))
   # for plotting only - distHaversine should be used where geographical 
