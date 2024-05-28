@@ -135,6 +135,7 @@ ranks = summary_xtable(tab = tmp_time_summ,
 
 map_tweaks <- time_map_tweaks[which(time_map_tweaks$district == "MALINAU"),]
 all_points <- health_sites[which(health_sites$regency == "MALINAU"),]
+unranked <- all_points[which(!1:nrow(all_points) %in% ranks),]
 all_points <- all_points[ranks,]
 ranked <- 10
 ext <- c(116.3,116.9,3,3.7)
@@ -194,6 +195,25 @@ colbreaks[length(colbreaks)] <- colbreaks[length(colbreaks)] + 1e-7
                          line_col = "black",
                          lab_col = "black",
                          lab_cex = 1.1)
+  
+  points(unranked[, c("lon", "lat")], pch=4, 
+         col=ifelse(unranked$dataset == "prelim", "red", "grey70"), lwd=4)
+  points(all_points[1:ranked, c("lon", "lat")], pch=4, 
+         col=ifelse(all_points$dataset[1:ranked] == "prelim", "red", "black"), lwd=4)
+  
+  # text(all_points[(1:ranked), c("lon", "lat")], 
+  #      labels=sapply((1:10), function(x){paste0(x, " ", all_points[x,"name"])}),
+  #      cex=1.1, font=2, pos=4, 
+  #      col=ifelse(all_points$dataset[(1:ranked)] == "prelim", "red", "black"))
+  
+  # add cities in
+  tmp = idn_cities[idn_cities$relevant.regency == "MALINAU",]
+  if (nrow(tmp) > 0){
+    points(tmp$lon, tmp$lat, col="blue", lwd=4)
+    text(tmp$lon, tmp$lat, labels=tmp$Name, col="blue", pos=4,
+         font=2,cex=1.1)
+  }
+  
   mtext("Simple ranking in Malinau:\n 100 minute travel time catchments", font=2, cex=1.4, line=2)
   
   dev.off()}

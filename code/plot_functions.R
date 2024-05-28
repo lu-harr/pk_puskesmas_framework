@@ -37,10 +37,8 @@ plot_sites_radius_pusk = function(ranked_sites,
     
   #} else {
   angles = (1:n_toadstools)*2*pi/n_toadstools # you know, like a fairy circle :)
-  #message(paste0(angles, sep=", "))
   angles = angles[-c(which(angles >= 12*pi/13 & angles <= 14*pi/13))]
   angles = angles[-c(which(angles <= 1*pi/13 | angles >= 25*pi/13))]
-  #message(paste0(angles, sep=", "))
   centre = unlist(centre) # coming from st_centroid()
   
   n_toadstools <- length(angles)
@@ -52,9 +50,6 @@ plot_sites_radius_pusk = function(ranked_sites,
   # possible set of end points for the lines we're putting in
   circle_coords = data.frame(x=(label_radius*gap)*cos(angles)+centre[1], 
                              y=(label_radius*gap)*sin(angles)+centre[2])
-  #}
-  
-  #message(length(angles), nrow(circle_coords))
   
   if (testing == TRUE){
     points(circle_coords, col="blue")
@@ -88,7 +83,6 @@ plot_sites_radius_pusk = function(ranked_sites,
     pos = ifelse(angles[tmp] > 7*pi/12 & angles[tmp] < 17*pi/12, 2, 
                  ifelse(angles[tmp] >= 5*pi/12 & angles[tmp] <= 7*pi/12, 3,
                         ifelse(angles[tmp] >= 17*pi/12 & angles[tmp] <= 19*pi/12, 1, 4))) # >:)
-    #message(paste0(pos, ",", tmp, ",", angles[tmp]))
     taken_coords = c(taken_coords, tmp)
     
     # we're ready to add to the plot!
@@ -99,11 +93,69 @@ plot_sites_radius_pusk = function(ranked_sites,
   }
 }
 
+################################################################################
+# VERSION OF PLOT_SITES_RADIUS_PUSK() FOR COMBINATIONS OF TWO SITES :)
+# CAN'T WAIT TO DO THIS AGAIN FOR MORE THAN THREE SITES :)
+# USE A CONVEX HULL IF I DECIDE TO DO COMBS OF FOUR + !
 
-# for (tmp in 1:length(angles)){
-#   pos = ifelse(angles[tmp] > 4*pi/9 & angles[tmp] < 13*pi/9, 2, 
-#                ifelse(angles[tmp] >= 4*pi/9 & angles[tmp] <= 5*pi/9, 3,
-#                       ifelse(angles[tmp] >= 13*pi/9 & angles[tmp] <= 14*pi/9, 1, 4))) # >:)
-#   message(pos)
-#   message(angles[tmp])
-# }
+label_two_combs = function(ranked_combs, locdf, 
+                           centre, label_radius, n_toadstools=30, gap=0.95,
+                           testing=FALSE,
+                           line_col="black", lab_col="black", lab_cex=1, 
+                           pal=viridis(nrow(ranked_combs)), labs=1:nrow(ranked_combs)){
+  
+  angles = (1:n_toadstools)*2*pi/n_toadstools # you know, like a fairy circle :)
+  centre = unlist(centre) # coming from st_centroid()
+  
+  # possible set of label positions
+  outer_circle_coords = data.frame(x=(label_radius)*cos(angles)+centre[1], 
+                                   y=(label_radius)*sin(angles)+centre[2])
+  
+  # possible set of end points for the lines we're putting in
+  circle_coords = data.frame(x=(label_radius*gap)*cos(angles)+centre[1], 
+                             y=(label_radius*gap)*sin(angles)+centre[2])
+  
+  if (testing == TRUE){
+    points(circle_coords)
+  }
+  
+  taken_coords = c()
+  for (i in nrow(ranked_combs):1){
+    comb = ranked_combs[i,]
+    midpoint = c((locdf$lon[comb$site1] + locdf$lon[comb$site2])/2,
+                 (locdf$lat[comb$site1] + locdf$lat[comb$site2])/2)
+    
+    dists_to_circle = my_simple_dist(circle_coords, midpoint)
+    
+    # find closest label
+    up = which(dists_to_circle == min(dists_to_circle))
+    down = up
+    
+    # iterate around the circle if the label is already assigned
+    while(up %in% taken_coords & down %in% taken_coords){
+      down = ifelse(down <= 1, n_toadstools, down - 1)
+      up = ifelse(up >= n_toadstools, 1, up + 1)
+    }
+    
+    # pick the best outta the `up` and `down` options we're left with
+    if(!(up %in% taken_coords) & !(down %in% taken_coords)){
+      tmp = ifelse(dists_to_circle[up,1] > dists_to_circle[down,1], down, up)
+    } else {
+      tmp = ifelse(up %in% taken_coords, down, up)
+    }
+    
+    outpoint = circle_coords[tmp,]
+    outpoint_label = outer_circle_coords[tmp,]
+    pos = ifelse(angles[tmp] > 7*pi/12 & angles[tmp] < 17*pi/12, 2, 
+                 ifelse(angles[tmp] >= 5*pi/12 & angles[tmp] <= 7*pi/12, 3,
+                        ifelse(angles[tmp] >= 17*pi/12 & angles[tmp] <= 19*pi/12, 1, 4))) # >:)
+    taken_coords = c(taken_coords, tmp)
+    
+    # we're ready to add to the plot!
+    text(outpoint_label, labels=labs[i], col=lab_col, cex=lab_cex, pos=pos)
+    lines(c(locdf$lon[comb$site1], outpoint[1], locdf$lon[comb$site2]), 
+          c(locdf$lat[comb$site1], outpoint[2], locdf$lat[comb$site2]), 
+          col=pal[i], lwd=2)
+    
+  }
+}

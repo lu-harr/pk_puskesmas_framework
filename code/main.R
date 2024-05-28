@@ -139,5 +139,158 @@ names(tmp_stretch_summ) = c("Name", "No' Pixels", "Objective Mean", "Objective S
 # now to make up those tables ...
 source("code/table_functions.R")
 
+# jump from here into simple_table_out.R for all the sinking/malinau map
+
+##################################################################################
+
+malinau_sites <- health_sites[health_sites$regency == "MALINAU",]
+
+malinau_time <- stack(malinau_sites$time_catch) %>%
+  trim()
+malinau_time[!is.na(malinau_time)] = 1
+malinau_obj <- crop(lulc_covs$objective, malinau_time)
+
+eval_obj_surface_mean <- function(inds, catch_stack, obj_surf){
+  # is this quicker than anything else I've written before?
+  tmp <- sum(catch_stack[[inds]], na.rm=TRUE)
+  tmp[tmp == 0] = NA
+  return(c(mean(values(mask(obj_surf, tmp)), na.rm=TRUE), inds))
+}
+
+eval_obj_surface_sum <- function(inds, catch_stack, obj_surf){
+  # is this quicker than anything else I've written before?
+  tmp <- sum(catch_stack[[inds]], na.rm=TRUE)
+  tmp[tmp == 0] = NA
+  return(c(sum(values(mask(obj_surf, tmp)), na.rm=TRUE), inds))
+}
+
+eval_catch_size <- function(inds, catch_stack, obj_surf){
+  # is this quicker than anything else I've written before?
+  return(c(sum(values(sum(catch_stack[[inds]], na.rm=TRUE))!=0), inds))
+}
+
+
+malinau_obj1 = sapply(1:nrow(malinau_sites), function(x){
+  eval_obj_surface_mean(x, malinau_time, malinau_obj)
+})
+
+malinau_obj2 = combn(length(malinau_sites), 2, 
+                     eval_obj_surface_mean, TRUE, malinau_time, malinau_obj) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site1=V2, site2=V3) %>%
+  arrange(desc(obj))
+
+malinau_obj2_sum = combn(length(malinau_sites), 2,
+                     eval_obj_surface_sum, TRUE, malinau_time, malinau_obj) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site1=V2, site2=V3) %>%
+  arrange(desc(obj))
+
+malinau_obj2_size = combn(length(malinau_sites), 2,
+                         eval_catch_size, TRUE, malinau_time, malinau_obj) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site1=V2, site2=V3) %>%
+  arrange(desc(obj))
+
+# would be good to have some sort of a table with a graphical representation
+# do this when I get to it !
+
+malinau_obj3 = combn(length(malinau_sites), 3, eval_obj_surface, TRUE,
+                     malinau_time, malinau_obj)
+
+# jump to a plot ...
+pal=rev(viridis(12)[2:11])
+
+{png("figures/malinau_one_obj_two_comb.png",
+    height=1200, width=1100, pointsize=30)
+  par(xpd=TRUE)
+plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
+     )
+points(malinau_sites[,c("lon","lat")], pch=4)
+select = c(1:9)
+label_two_combs(malinau_obj2[select,], malinau_sites,
+                centre=c(115.1,2.8),
+                label_radius=2,
+                n_toadstools = 60,
+                gap=0.99,
+                pal=pal[select],
+                labs=select)
+select = c(10)
+label_two_combs(malinau_obj2[select,], malinau_sites,
+                centre=c(115.1,3.2),
+                label_radius=2,
+                n_toadstools = 60,
+                pal=pal[select],
+                labs=select)
+dev.off()}
+
+pairsdf <- malinau_obj2 %>%
+  left_join(malinau_obj2_size, by=c("site1", "site2")) %>%
+  left_join(malinau_obj2_sum, by=c("site1", "site2")) %>%
+  rename(mean_obj=obj.x, sum_obj=obj, catch_size=obj.y)
+
+{png("figures/malinau_one_obj_two_comb_twopanel.png",
+     height=2000, width=2000, pointsize=30)
+  par(xpd=TRUE, mfrow=c(2,2), mar=c(2,2,2,2))
+  plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
+  )
+  points(malinau_sites[,c("lon","lat")], pch=4)
+  select = c(1:9)
+  label_two_combs(malinau_obj2[select,], malinau_sites,
+                  centre=c(115.1,2.8),
+                  label_radius=2,
+                  n_toadstools = 60,
+                  gap=0.99,
+                  pal=pal[select],
+                  labs=select)
+  select = c(10)
+  label_two_combs(malinau_obj2[select,], malinau_sites,
+                  centre=c(115.1,3.2),
+                  label_radius=2,
+                  n_toadstools = 60,
+                  pal=pal[select],
+                  labs=select)
+  subfigure_label(par()$usr,0.1,0.9,"(a)")
+  
+  plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
+  )
+  points(malinau_sites[,c("lon","lat")], pch=4)
+  select=1:10
+  label_two_combs(malinau_obj2_sum[select,], malinau_sites,
+                  centre=c(115.5,2.8),
+                  label_radius=2,
+                  n_toadstools = 60,
+                  gap=0.99,
+                  pal=pal[select],
+                  labs=select)
+  subfigure_label(par()$usr,0.1,0.9,"(b)")
+  
+  plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
+  )
+  points(malinau_sites[,c("lon","lat")], pch=4)
+  select=1:10
+  label_two_combs(malinau_obj2_size[select,], malinau_sites,
+                  centre=c(115.5,2.8),
+                  label_radius=2,
+                  n_toadstools = 60,
+                  gap=0.99,s
+                  pal=pal[select],
+                  labs=select)
+  subfigure_label(par()$usr,0.1,0.9,"(c)")
+  dev.off()}
+
+{png("figures/malinau_one_obj_two_comb_twopanel_pairs.png",
+    height=2000, width=2000, pointsize=50)
+  pairs(pairsdf[c("mean_obj", "sum_obj", "catch_size")])
+  dev.off()}
+
+##################################################################################
+
+
+
+
 
 

@@ -257,6 +257,17 @@ summary_xtable = function(tab,
   
   #return(neworder)
 }
+
+
+summary_two_comb <- function(ranked_combs, sitedf){
+  
+  coltab <- tab %>%
+    mutate(`Site 1` = set_bg_col(tab$site1, ylorrd_pal),
+           `Site 2` = set_bg_col(tab$site2, ylorrd_pal)) %>%
+    mutate(obj_mean_font = set_font_col(`Objective Mean`),
+           obj_sd_font = set_font_col(`Objective Std Dev`),
+           ecotypes_font = set_font_col(`Eco-constraints  Present`))
+}
   
 
 ################################################################################
