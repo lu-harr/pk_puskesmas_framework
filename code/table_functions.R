@@ -145,8 +145,8 @@ set_bg_col <- function(vec, pal){
   return(out)
 }
 
-set_font_col <- function(vec){
-  ifelse(vec %in% c("BD0026", "800026", "E31A1C"), "FFFFFF", "000000")
+set_font_col <- function(x){
+  ifelse(x %in% c("BD0026", "800026", "E31A1C"), "FFFFFF", "000000")
 }
 
 #"#FED976" "#FEB24C" "#FD8D3C" "#FC4E2A" "#E31A1C" "#BD0026" "#800026"
@@ -258,16 +258,66 @@ summary_xtable = function(tab,
   #return(neworder)
 }
 
+library(tidyverse)
 
-summary_two_comb <- function(ranked_combs, sitedf){
+summary_comb <- function(ranked_combs, sitedf, indivobj,
+                         cap="", lab=""){
+  # sitedf needs to be in order and have individual site mean objective/npixel
+  # ranked combs needs to have the site indices and the design objective
+  nsites <- sum(grepl("site", names(ranked_combs)))
+  
+  message(c(1, unlist(lapply(1:nsites, function(x){c(x, x+nsites)})) + 1))
+  
+  ylorrd_pal <- gsub("#", "", brewer.pal(9, "YlOrRd")[3:9])
+  
+  tab <- ranked_combs %>%
+    mutate(across(starts_with("site"),
+                  function(x){indivobj$obj[x]},
+                  .names = "obj_{.col}")) %>%
+    mutate(across(starts_with("site"), 
+                  function(x){sitedf$name[x]}))
   
   coltab <- tab %>%
-    mutate(`Site 1` = set_bg_col(tab$site1, ylorrd_pal),
-           `Site 2` = set_bg_col(tab$site2, ylorrd_pal)) %>%
-    mutate(obj_mean_font = set_font_col(`Objective Mean`),
-           obj_sd_font = set_font_col(`Objective Std Dev`),
-           ecotypes_font = set_font_col(`Eco-constraints  Present`))
+    mutate(across(starts_with("obj"),
+                  function(x){set_bg_col(x, ylorrd_pal)})) %>%
+    mutate(across(starts_with("obj"),
+                  function(x){set_font_col(x)},
+                  .names = "font_{.col}"))
+  
+  tab <- tab %>%
+    arrange(desc(obj)) %>%
+    mutate(across(starts_with("obj"), 
+                  function(x){
+                    format(round(x, digits = 2), big.mark = ",", scientific = FALSE)
+                  })) %>%
+    mutate(across(starts_with("obj"),
+                  function(x){
+                    paste0("\\cellcolor[HTML]{", coltab[,cur_column()],
+                           "}\\textcolor[HTML]{", coltab[,paste0("font_",cur_column())], 
+                           "}{", x, "}")
+                  })) %>%
+    top_n(10) %>%
+    dplyr::select(c(1, unlist(lapply(1:nsites, function(x){c(x, x+nsites)})) + 1)) %>%
+    set_names(~ str_to_lower(.) %>%
+                str_replace_all("_", " ") %>%
+                str_to_title(.) %>%
+                str_replace_all("Obj", "Objective") %>%
+                str_replace_all("ite", "ite "))
+  
+  xtab <- xtable::xtable(tab,
+                         caption = cap,
+                         label = lab)
+  align(xtab) <- rep("c", ncol(tab) + 1)
+  
+  print(xtab,
+        size = "\\fontsize{9pt}{10pt}\\selectfont",
+        include.rownames = FALSE,
+        sanitize.text.function = function(x){x},
+        hline.after = NULL)
 }
+
+
+summary_comb(malinau_obj2, malinau_sites, malinau_obj1)
   
 
 ################################################################################
