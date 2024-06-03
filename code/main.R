@@ -150,8 +150,8 @@ malinau_time <- stack(malinau_sites$time_catch) %>%
 malinau_time[!is.na(malinau_time)] = 1
 malinau_obj <- crop(lulc_covs$objective, malinau_time)
 
-malinau_distance_matrix = as.matrix(dist(malinau_sites[,c("lon","lat")], upper=TRUE))
 
+# objective functions:
 eval_obj_surface_mean <- function(inds, catch_stack, obj_surf){
   # is this quicker than anything else I've written before?
   tmp <- sum(catch_stack[[inds]], na.rm=TRUE)
@@ -188,18 +188,34 @@ eval_network_distance <- function(site_ids, dist_mat){
 }
 
 
+# now let's apply them: 
 malinau_obj1 = sapply(1:nrow(malinau_sites), function(x){
   eval_obj_surface_mean(x, malinau_time, malinau_obj)
 }) %>%
   t() %>%
   as.data.frame() %>%
   rename(obj=V1, site=V2)
+
+# reordering malinau_sites by mean objective so that the sites in tables are sorted left to right ..
+malinau_sites <- malinau_sites[order(malinau_obj1$obj, decreasing = TRUE),]
+malinau_time <- malinau_time[[order(malinau_obj1$obj, decreasing = TRUE)]]
+malinau_distance_matrix = as.matrix(dist(malinau_sites[,c("lon","lat")], upper=TRUE))
+
+
+malinau_obj1 = sapply(1:nrow(malinau_sites), function(x){
+  eval_obj_surface_mean(x, malinau_time, malinau_obj)
+}) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site=V2)
+
 malinau_obj1_sum = sapply(1:nrow(malinau_sites), function(x){
   eval_obj_surface_sum(x, malinau_time, malinau_obj)
 }) %>%
   t() %>%
   as.data.frame() %>%
   rename(obj=V1, site=V2)
+
 malinau_obj1_size = sapply(1:nrow(malinau_sites), function(x){
   c(sum(!is.na(values(malinau_time[[x]]))), x)
 }) %>%
@@ -207,28 +223,28 @@ malinau_obj1_size = sapply(1:nrow(malinau_sites), function(x){
   as.data.frame() %>%
   rename(obj=V1, site=V2)
 
-malinau_obj2 = combn(length(malinau_sites), 2, 
+malinau_obj2 = combn(nrow(malinau_sites), 2, 
                      eval_obj_surface_mean, TRUE, malinau_time, malinau_obj) %>%
   t() %>%
   as.data.frame() %>%
   rename(obj=V1, site1=V2, site2=V3) %>%
   arrange(desc(obj))
 
-malinau_obj2_sum = combn(length(malinau_sites), 2,
+malinau_obj2_sum = combn(nrow(malinau_sites), 2,
                      eval_obj_surface_sum, TRUE, malinau_time, malinau_obj) %>%
   t() %>%
   as.data.frame() %>%
   rename(obj=V1, site1=V2, site2=V3) %>%
   arrange(desc(obj))
 
-malinau_obj2_size = combn(length(malinau_sites), 2,
+malinau_obj2_size = combn(nrow(malinau_sites), 2,
                          eval_catch_size, TRUE, malinau_time, malinau_obj) %>%
   t() %>%
   as.data.frame() %>%
   rename(obj=V1, site1=V2, site2=V3) %>%
   arrange(desc(obj))
 
-malinau_obj2_dist = combn(length(malinau_sites), 2,
+malinau_obj2_dist = combn(nrow(malinau_sites), 2,
                           eval_network_distance, TRUE, malinau_distance_matrix) %>%
   t() %>%
   as.data.frame() %>%
@@ -238,21 +254,21 @@ malinau_obj2_dist = combn(length(malinau_sites), 2,
 # would be good to have some sort of a table with a graphical representation
 # do this when I get to it !
 
-malinau_obj3 = combn(length(malinau_sites), 3, eval_obj_surface_mean, TRUE,
+malinau_obj3 = combn(nrow(malinau_sites), 3, eval_obj_surface_mean, TRUE,
                      malinau_time, malinau_obj) %>%
   t() %>%
   as.data.frame() %>%
   rename(obj=V1, site1=V2, site2=V3, site3=V4) %>%
   arrange(desc(obj))
 
-malinau_obj4 = combn(length(malinau_sites), 4, eval_obj_surface_mean, TRUE,
+malinau_obj4 = combn(nrow(malinau_sites), 4, eval_obj_surface_mean, TRUE,
                      malinau_time, malinau_obj) %>%
   t() %>%
   as.data.frame() %>%
   rename(obj=V1, site1=V2, site2=V3, site3=V4, site4=V5) %>%
   arrange(desc(obj))
 
-malinau_obj5 = combn(length(malinau_sites), 5, eval_obj_surface_mean, TRUE,
+malinau_obj5 = combn(nrow(malinau_sites), 5, eval_obj_surface_mean, TRUE,
                      malinau_time, malinau_obj) %>%
   t() %>%
   as.data.frame() %>%
@@ -268,19 +284,12 @@ pal=rev(viridis(12)[2:11])
 plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
      )
 points(malinau_sites[,c("lon","lat")], pch=4)
-select = c(1:9)
+select = 1:10
 label_two_combs(malinau_obj2[select,], malinau_sites,
                 centre=c(115.1,2.8),
                 label_radius=2,
                 n_toadstools = 60,
                 gap=0.99,
-                pal=pal[select],
-                labs=select)
-select = c(10)
-label_two_combs(malinau_obj2[select,], malinau_sites,
-                centre=c(115.1,3.2),
-                label_radius=2,
-                n_toadstools = 60,
                 pal=pal[select],
                 labs=select)
 dev.off()}
@@ -423,6 +432,12 @@ points(malinau_sites[,c("lon","lat")])
 subfigure_label(par()$usr,0.1,0.9,"(d)")
   
 dev.off()}
+
+# maybe I should order sites in malinau_sites by malinau_obj1?
+summary_comb(malinau_obj2, malinau_sites, malinau_obj1)
+summary_comb(malinau_obj3, malinau_sites, malinau_obj1)
+summary_comb(malinau_obj4, malinau_sites, malinau_obj1)
+summary_comb(malinau_obj5, malinau_sites, malinau_obj1)
 
 
 ##################################################################################

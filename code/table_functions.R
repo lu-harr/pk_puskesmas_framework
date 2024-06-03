@@ -242,11 +242,8 @@ summary_xtable = function(tab,
                          caption = cap,
                          label = lab)
   
-  #addtorow <- list()
-  #addtorow$pos <- list(0)
-  #addtorow$command <- "&&&&&& Total & \\multicolumn{4}{c}{Maximum Single Value}"
-  align(xtab) <- rep("c", ncol(tab) + 1)
-  align(xtab) <- c("c", "C{0.05\\textwidth}", "C{0.15\\textwidth}", rep("C{0.08\\textwidth}", 8))
+  align(xtab) <- c("c", "C{0.05\\textwidth}", "C{0.15\\textwidth}", 
+                   rep("C{0.08\\textwidth}", 8))
   
   print(xtab,
         #add.to.row = addtorow,
@@ -266,8 +263,6 @@ summary_comb <- function(ranked_combs, sitedf, indivobj,
   # ranked combs needs to have the site indices and the design objective
   nsites <- sum(grepl("site", names(ranked_combs)))
   
-  message(c(1, unlist(lapply(1:nsites, function(x){c(x, x+nsites)})) + 1))
-  
   ylorrd_pal <- gsub("#", "", brewer.pal(9, "YlOrRd")[3:9])
   
   tab <- ranked_combs %>%
@@ -276,6 +271,8 @@ summary_comb <- function(ranked_combs, sitedf, indivobj,
                   .names = "obj_{.col}")) %>%
     mutate(across(starts_with("site"), 
                   function(x){sitedf$name[x]}))
+  
+  message(nrow(tab))
   
   coltab <- tab %>%
     mutate(across(starts_with("obj"),
@@ -296,28 +293,39 @@ summary_comb <- function(ranked_combs, sitedf, indivobj,
                            "}\\textcolor[HTML]{", coltab[,paste0("font_",cur_column())], 
                            "}{", x, "}")
                   })) %>%
-    top_n(10) %>%
-    dplyr::select(c(1, unlist(lapply(1:nsites, function(x){c(x, x+nsites)})) + 1)) %>%
-    set_names(~ str_to_lower(.) %>%
-                str_replace_all("_", " ") %>%
-                str_to_title(.) %>%
-                str_replace_all("Obj", "Objective") %>%
-                str_replace_all("ite", "ite "))
+    head(n = 10L) %>%
+    dplyr::select(c(1, unlist(lapply(1:nsites, function(x){c(x, x+nsites)})) + 1)) #%>%
+    # set_names(~ str_to_lower(.) %>%
+    #             str_replace_all("_", " ") %>%
+    #             str_to_title(.) %>%
+    #             str_replace_all("Obj", "Objective") %>%
+    #             str_replace_all("ite", "ite "))
+  
+  #names(tab) <- c("Net Obj", rep("", ncol(tab)-1))
+  
+  message(nrow(tab))
   
   xtab <- xtable::xtable(tab,
                          caption = cap,
                          label = lab)
-  align(xtab) <- rep("c", ncol(tab) + 1)
+  align(xtab) <- c("c\\|",rep("c", ncol(tab)))
+  atr <- list(pos = list(-1, nrow(xtab)),
+              command = c(paste("\\toprule",
+                                "\\textbf{Net Obj}",
+                                paste0(sapply(1:nsites, 
+                                              function(i){paste0("& \\multicolumn{2}{c}{\\textbf{Site ", i, "}} ")}), 
+                                       collapse=""),
+                                "\\\\ \\midrule"),
+                          "\\bottomrule"))
   
   print(xtab,
         size = "\\fontsize{9pt}{10pt}\\selectfont",
         include.rownames = FALSE,
+        include.colnames = FALSE,
         sanitize.text.function = function(x){x},
-        hline.after = NULL)
+        hline.after = NULL,
+        add.to.row = atr)
 }
-
-
-summary_comb(malinau_obj2, malinau_sites, malinau_obj1)
   
 
 ################################################################################
