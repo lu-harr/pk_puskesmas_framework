@@ -274,11 +274,9 @@ select_objs = time_mean_objs[which(health_sites$regency == "MALINAU"),
 select_ranks = apply(select_objs, 2, function(x){rank(-x)})
 #select_ranks[which(select_objs == 0)] = 0
 select_ranks[which(is.na(select_objs))] = NA
-# what do these lines do? need to order sites by rank at 100 minutes
-tmp_names = time_mean_objs[which(health_sites$regency == pilot_shapes$kabkot_name[i]),
-                           "name"]
-tmp_names = tmp_names[order(select_ranks[,ncol(select_ranks)])]
-select_ranks = select_ranks[order(select_ranks[,ncol(select_ranks)]),]
+select_ranks <- select_ranks[order(select_objs$`100mins`), ]
+select_objs <-select_objs[order(select_objs$`100mins`), ]
+
 
 linelwd <- 4
 pal <- viridis(100)[seq(25,93,length.out=nrow(select_objs))]
@@ -295,16 +293,25 @@ plot(0,type="n", xlim=range(test_times), ylim=range(select_objs, na.rm=TRUE),
      col=pal[1], cex.lab=1.5, cex.main=1.5,lty=1, xaxt="n")
 axis(1, test_times, test_times)
 abline(v=100, lty=5, col="grey60", lwd=linelwd)
-tmp = sapply(1:nrow(select_objs), function(j){
+sapply(1:nrow(select_objs), function(j){
   tmp = sum(!is.na(select_objs[j,]))
   lines(test_times[(length(test_times)-tmp+1):length(test_times)], 
         select_objs[j,!is.na(select_objs[j,])],
-        col=rev(pal)[j],
+        col=pal[j],
         lwd=linelwd)
-  return(ifelse(tmp == length(test_times),
-                NA,
-                select_objs[j, max(which(is.na(select_objs[j,]))) + 1]))
 })
+
+nastarts <- select_objs[, grep("min", names(select_objs))] %>%
+  filter(if_any(everything(), is.na)) %>%
+  apply(1, function(x){c(sum(is.na(x)), x[!is.na(x)][1])})
+points(test_times[nastarts[1,] + 1], nastarts[2,],
+       col=pal[unique(which(is.na(select_objs), arr.ind=TRUE)[,1])], 
+       cex=1.5, lwd=linelwd, pch=21, bg="white")
+
+par(xpd=TRUE)
+subfigure_label(par()$usr, -0.1, 1.1, "(a)", cex.label = 1.3)
+par(xpd=FALSE)
+
 
 plot(0,type="n", xlim=range(test_times), ylim=rev(range(select_ranks, na.rm=TRUE)),
      xlab="Catchment time limit (mins)", ylab="Site ranking",
@@ -317,14 +324,21 @@ tmp = sapply(1:nrow(select_ranks), function(j){
   tmp = sum(!is.na(select_ranks[j,]))
   lines(test_times[(length(test_times)-tmp+1):length(test_times)], 
         select_ranks[j,!is.na(select_ranks[j,])],
-        col=rev(pal)[j],
+        col=pal[j],
         lwd=linelwd)
   return(ifelse(tmp == length(test_times),
                 NA,
                 select_ranks[j, max(which(is.na(select_ranks[j,]))) + 1]))
 })
-points(c(60,100), c(7,6), col=pal[c(9,11)], cex=1.5, lwd=linelwd, pch=21, bg="white")
 
+
+points(c(60,100), c(7,6), 
+       col=pal[unique(which(is.na(select_objs), arr.ind=TRUE)[,1])], 
+       cex=1.5, lwd=linelwd, pch=21, bg="white")
+
+par(xpd=TRUE)
+subfigure_label(par()$usr, -0.1, 1.1, "(b)", cex.label = 1.3)
+par(xpd=FALSE)
 
 
 dev.off()}
