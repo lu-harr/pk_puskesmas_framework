@@ -31,31 +31,31 @@ coordinates(all_points) <- ~ lon + lat
 proj4string(all_points) <- proj4string(idn_shp)
 
 # find catchments for them all
-# all_sites$dist_catch = apply(all_sites, 1,
-#                               getDistanceCatchment,
-#                               radius_m=30000, ras=lulc_covs$objective)
-# all_sites$time_catch = sapply(1:nrow(all_sites), getTimeCatchment,
-#                                points=all_points,
-#                                transition_surfaces=transition_surfaces,
-#                                island_groups=all_sites$island_group,
-#                                to_surface=lulc_covs$objective,
-#                                time_cap=100)
+all_sites$dist_catch = apply(all_sites, 1,
+                              getDistanceCatchment,
+                              radius_m=30000, ras=lulc_covs$objective)
+all_sites$time_catch = sapply(1:nrow(all_sites), getTimeCatchment,
+                               points=all_points,
+                               transition_surfaces=transition_surfaces,
+                               island_groups=all_sites$island_group,
+                               to_surface=lulc_covs$objective,
+                               time_cap=100)
 
 # save our work!
 # saveRDS(all_sites, file="output/peripheral_sites.rds")
 all_sites <- readRDS("output/peripheral_sites.rds")
 
 # this takes a while :/
-all_dist_summary = lapply(all_sites$dist_catch,
-                          catchment_summary_stats, 
-                          lulc_covs)
+# all_dist_summary = lapply(all_sites$dist_catch,
+#                           catchment_summary_stats, 
+#                           lulc_covs)
 
 # saveRDS(all_dist_summary, file="output/peripheral_distance_summary.rds")
 all_dist_summary <- readRDS("output/peripheral_distance_summary.rds")
 
-all_time_summary = lapply(all_sites$time_catch,
-                          catchment_summary_stats, 
-                          lulc_covs)
+# all_time_summary = lapply(all_sites$time_catch,
+#                           catchment_summary_stats, 
+#                           lulc_covs)
 # saveRDS(all_time_summary, file="output/peripheral_time_summary.rds")
 all_time_summary <- readRDS("output/peripheral_time_summary.rds")
 
@@ -131,7 +131,7 @@ site_range_plot3 = function(health_sel_sites, # relevant rows from health_sites
   abline(h=1:nrow(health_sel_sites), col="grey80", lwd=2)
   abline(v=0.8433828, col="blue", lwd=3)
   text(x=0.8433828, y=14, 
-       col="blue", labels=c("Mean value in objective\n surface"), pos=4,cex=1.2)
+       col="blue", labels=c("Mean value in \nobjective\n surface"), pos=4,cex=1.2)
   for(i in 1:nrow(health_sel_sites)){
     periph_means = unlist(periph_sel_sites[i,])
     periph_means = periph_means[!is.na(periph_means)]
@@ -145,7 +145,7 @@ site_range_plot3 = function(health_sel_sites, # relevant rows from health_sites
   mtext("Site name", 2, line=8.5, cex=1.5)
   
   # Insert barplot
-  par(mar=c(5.1,4.1,4.1,2.1), fig=c(0.75,0.97,0,1), new=TRUE, xpd=TRUE)
+  par(mar=c(5.1,4.1,4.1,2.1), fig=c(0.71,0.97,0,1), new=TRUE, xpd=TRUE)
   mp = barplot(unlist(central_catch_size), horiz=TRUE, col="grey90", 
                ylim=c(0.5, nrow(health_sel_sites)-0.5), space=0,
                xlab="", axes = FALSE)
@@ -154,26 +154,27 @@ site_range_plot3 = function(health_sel_sites, # relevant rows from health_sites
   return(mp)
 }
 
-
-for (district in c("LANGKAT", "MALINAU")){
-  png(paste0("figures/adjacent_sites/adjacent_", tolower(district),"_dist.png"),
+districts = c("LANGKAT", "MALINAU")
+for (district in 1:2){
+  png(paste0("figures/adjacent_sites/adjacent_", tolower(districts[district]),"_dist.png"),
       width = 2000,
-      height = 1600,
-      pointsize = 30)
-  site_range_plot3(health_sel_sites = health_sites[health_sites$regency == district,], 
-                   periph_sites_df = periph_dist_agg[health_sites$regency == district,],
-                   paste0(str_to_title(district), " - Distance catchments"))
+      height = c(1900,1500)[district],
+      pointsize = 40)
+  site_range_plot3(health_sel_sites = health_sites[health_sites$regency == districts[district],], 
+                   periph_sites_df = periph_dist_agg[health_sites$regency == districts[district],],
+                   "")#paste0(str_to_title(districts[district]), " - Distance catchments"))
   dev.off()
 }
 
 
-for (district in c("LANGKAT", "MALINAU")){
-  png(paste0("figures/adjacent_sites/adjacent_", tolower(district),"_time.png"),
+for (district in 1:2){
+  png(paste0("figures/adjacent_sites/adjacent_", tolower(districts[district]),"_time.png"),
       width = 2000,
-      height = 1600,
-      pointsize = 30)
-  site_range_plot3(health_sel_sites = health_sites[health_sites$regency == district,], 
-                   periph_sites_df = periph_time_agg[health_sites$regency == district,],
-                   paste0(str_to_title(district), " - Travel time catchments"))
+      height = c(1900,1500)[district],
+      pointsize = 40)
+  site_range_plot3(health_sel_sites = health_sites[health_sites$regency == districts[district],], 
+                   periph_sites_df = periph_time_agg[health_sites$regency == districts[district],],
+                   "")#paste0(str_to_title(districts[district]), " - Travel time catchments"))
   dev.off()
 }
+
