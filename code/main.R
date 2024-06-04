@@ -278,7 +278,7 @@ malinau_obj5 = combn(nrow(malinau_sites), 5, eval_obj_surface_mean, TRUE,
 # jump to a plot ...
 pal=rev(viridis(12)[2:11])
 
-{png("figures/malinau_one_obj_two_comb.png",
+{png("figures/multiple_sites/malinau_one_obj_two_comb.png",
     height=1200, width=1100, pointsize=30)
   par(xpd=TRUE)
 plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
@@ -298,15 +298,35 @@ pairsdf <- malinau_obj2 %>%
   left_join(malinau_obj2_size, by=c("site1", "site2")) %>%
   left_join(malinau_obj2_sum, by=c("site1", "site2")) %>%
   left_join(malinau_obj2_dist, by=c("site1", "site2")) %>%
-  rename(mean_obj=obj.x, sum_obj=obj.x.x, catch_size=obj.y, net_dist=obj.y.y)
+  #rename(mean_obj=obj.x, sum_obj=obj.x.x, catch_size=obj.y, net_dist=obj.y.y)
+  rename(`Mean\n Objective`=obj.x, `Sum\n Objective`=obj.x.x, `Catchment\n Size`=obj.y, 
+         `Network\n Distance`=obj.y.y) %>%
+  dplyr::select(-c("site1", "site2"))
 
-{png("figures/malinau_one_obj_two_comb.png",
+panel.hist <- function(x, ...)
+{
+  usr <- par("usr")
+  par(usr = c(usr[1:2], 0, 1.5) )
+  h <- hist(x, plot = FALSE)
+  breaks <- h$breaks; nB <- length(breaks)
+  y <- h$counts; y <- y/max(y)
+  rect(breaks[-nB], 0, breaks[-1], y)
+}
+
+{png("figures/multiple_sites/malinau_one_obj_two_comb.png",
      height=2200, width=1800, pointsize=35)
-  par(xpd=TRUE, mfrow=c(3,2), mar=c(2,2,2,2))
+  
+  # get ready for the most cursed use of oma in a bit
+  pairs(pairsdf, oma=c(4,5,54,35), new=TRUE, cex.labels=1.2, cex.axis=0.8,
+        #lower.panel=panel.hist, 
+        cex=0.8)
+  
+  par(xpd=TRUE, mfrow=c(3,2), mar=c(1,1,1,1), oma=c(0,0,0,0), mfg=c(1,1), new=TRUE)
   plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
   )
   points(malinau_sites[,c("lon","lat")], pch=4)
-  select = c(1:9)
+  select = 1:10
+  par(xpd=NA)
   label_two_combs(malinau_obj2[select,], malinau_sites,
                   centre=c(115.1,2.8),
                   label_radius=2,
@@ -314,14 +334,7 @@ pairsdf <- malinau_obj2 %>%
                   gap=0.99,
                   pal=pal[select],
                   labs=select)
-  select = c(10)
-  label_two_combs(malinau_obj2[select,], malinau_sites,
-                  centre=c(115.1,3.2),
-                  label_radius=2,
-                  n_toadstools = 60,
-                  pal=pal[select],
-                  labs=select)
-  subfigure_label(par()$usr,0.1,0.9,"(a)")
+  subfigure_label(par()$usr,0.1,0.9,"(a)",1.3)
   
   plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
   )
@@ -334,7 +347,7 @@ pairsdf <- malinau_obj2 %>%
                   gap=0.99,
                   pal=pal[select],
                   labs=select)
-  subfigure_label(par()$usr,0.1,0.9,"(b)")
+  subfigure_label(par()$usr,0.1,0.9,"(b)",1.3)
   
   plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
   )
@@ -347,7 +360,7 @@ pairsdf <- malinau_obj2 %>%
                   gap=0.99,
                   pal=pal[select],
                   labs=select)
-  subfigure_label(par()$usr,0.1,0.9,"(c)")
+  subfigure_label(par()$usr,0.1,0.9,"(c)",1.3)
   
   plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
   )
@@ -355,12 +368,16 @@ pairsdf <- malinau_obj2 %>%
   select=1:10
   label_two_combs(malinau_obj2_dist[select,], malinau_sites,
                   centre=c(115.5,2.8),
-                  label_radius=1.8,
+                  label_radius=1.9,
                   n_toadstools = 60,
                   gap=0.99,
                   pal=pal[select],
                   labs=select)
-  subfigure_label(par()$usr,0.1,0.9,"(d)")
+  subfigure_label(par()$usr,0.1,0.9,"(d)",1.3)
+  
+  plot(0, type="n", axes=FALSE)
+  subfigure_label(par()$usr,0.1,1,"(e)",1.3)
+  
   dev.off()}
   
 {png("figures/malinau_one_obj_pairs.png",
@@ -430,6 +447,8 @@ for (i in 1:10){
 }
 points(malinau_sites[,c("lon","lat")])
 subfigure_label(par()$usr,0.1,0.9,"(d)")
+
+
   
 dev.off()}
 
