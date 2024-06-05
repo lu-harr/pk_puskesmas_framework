@@ -395,13 +395,16 @@ langkat_obj2_dist = combn(nrow(langkat_sites), 2,
 #   arrange(desc(obj))
 # write.csv(langkat_obj4, "output/multiple_sites/langkat_mean_4.csv", row.names=FALSE)
 
-langkat_obj5 = combn(nrow(langkat_sites), 5, eval_obj_surface_mean, TRUE,
-                     langkat_time, langkat_obj) %>%
-  t() %>%
-  as.data.frame() %>%
-  rename(obj=V1, site1=V2, site2=V3, site3=V4, site4=V5, site5=V6) %>%
-  arrange(desc(obj))
-write.csv(langkat_obj5, "output/multiple_sites/langkat_mean_5.csv", row.names=FALSE)
+# langkat_obj5 = combn(nrow(langkat_sites), 5, eval_obj_surface_mean, TRUE,
+#                      langkat_time, langkat_obj) %>%
+#   t() %>%
+#   as.data.frame() %>%
+#   rename(obj=V1, site1=V2, site2=V3, site3=V4, site4=V5, site5=V6) %>%
+#   arrange(desc(obj))
+# write.csv(langkat_obj5, "output/multiple_sites/langkat_mean_5.csv", row.names=FALSE)
+langkat_obj3 <- read.csv("output/multiple_sites/langkat_mean_3.csv")
+langkat_obj4 <- read.csv("output/multiple_sites/langkat_mean_4.csv")
+langkat_obj5 <- read.csv("output/multiple_sites/langkat_mean_5.csv")
 
 pairsdf <- langkat_obj2 %>%
   left_join(langkat_obj2_size, by=c("site1", "site2")) %>%
