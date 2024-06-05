@@ -97,7 +97,7 @@ pal=rev(viridis(12)[2:11])
   
   par(mfrow=c(1,1), new=TRUE, oma=c(0,0,0,0), mar=c(3.1,4.1,36.1,10.1))
   plot(0, xlim=c(0,1), ylim=c(0,1), bty="n", axes=FALSE, xlab="", ylab="", type="n")
-  text(rep(0.8), seq(0.1,0.9, length.out=4), paste(2:5, "sites"), cex=0.9)
+  text(rep(0.8), seq(0.1,0.9, length.out=4), paste(5:2, "sites"), cex=0.9)
   par(xpd=NA)
   subfigure_label(par()$usr,-0.1,0.9,"(e)", 0.8)
   

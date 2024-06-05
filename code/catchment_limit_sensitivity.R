@@ -343,37 +343,67 @@ par(xpd=FALSE)
 
 dev.off()}
 
-i=7 # MALINAU RAW SENSITIVITY
-pal=viridis(100)[seq(50,93,3)]
-select_objs = time_mean_objs[which(health_sites$regency == pilot_shapes$kabkot_name[i]),
+################################################################
+# HOW ABOUT LANGKAT ?
+
+select_objs = time_mean_objs[which(health_sites$regency == "LANGKAT"),
                              1:length(test_times)]
-tmp_names = time_mean_objs[which(health_sites$regency == pilot_shapes$kabkot_name[i]),
-                           "name"]
-tmp_names = tmp_names[order(select_objs[,11])]
-select_objs = select_objs[order(select_objs[,ncol(select_objs)]),]
-select_objs[which(select_objs == 0, arr.ind = TRUE)] = NA
-message(nrow(select_objs))
-png(paste0(plotpath,"raw_time_limits.png"),
-    width = 1600,
-    height = 1600,
-    pointsize = 40)
-par(mar=c(4.1,4.1,4.1,2.1))
-plot(0,type="n", xlim=range(test_times), 
-     ylim=range(as.numeric(unlist(select_objs)), na.rm=TRUE),
-     xlab="Catchment time limit (mins)", ylab="Site objective value",
-     main="Sensitivity to catchment limit\n(Malinau district)",
-     col=pal[1], cex.lab=1.5, cex.main=1.5,lty=1, xaxt="n")
-axis(1, test_times, test_times)
-abline(v=100, lty=5, col="grey60", lwd=8)
-tmp = sapply(1:nrow(select_objs), function(j){
-  tmp = sum(!is.na(select_objs[j,]))
-  lines(test_times[(length(test_times)-tmp+1):length(test_times)], 
-        select_objs[j,!is.na(select_objs[j,])],
-        col=ifelse(j == 6, "red", pal[j]), lwd=8)
-  return(ifelse(tmp == length(test_times),
-                NA,
-                select_objs[j, max(which(is.na(select_objs[j,]))) + 1]))
-})
+select_ranks = apply(select_objs, 2, function(x){rank(-x)})
+#select_ranks[which(select_objs == 0)] = 0
+select_ranks[which(is.na(select_objs))] = NA
+select_ranks <- select_ranks[order(select_objs$`100mins`), ]
+select_objs <-select_objs[order(select_objs$`100mins`), ]
 
 
+linelwd <- 4
+pal <- viridis(100)[seq(25,93,length.out=nrow(select_objs))]
 
+{png(paste0("figures/catch_limit_sensitivity/langkat_time_limits.png"),
+     width = 2800,
+     height = 1600,
+     pointsize = 40)
+  par(mar=c(4.1,4.1,4.1,2.1), mfrow=c(1,2))
+  
+  plot(0,type="n", xlim=range(test_times), ylim=range(select_objs, na.rm=TRUE),
+       xlab="Catchment time limit (mins)", ylab="Site objective value",
+       #main="Sensitivity to catchment limit\n(langkat district)",
+       col=pal[1], cex.lab=1.5, cex.main=1.5,lty=1, xaxt="n")
+  axis(1, test_times, test_times)
+  abline(v=100, lty=5, col="grey60", lwd=linelwd)
+  sapply(1:nrow(select_objs), function(j){
+    tmp = sum(!is.na(select_objs[j,]))
+    lines(test_times[(length(test_times)-tmp+1):length(test_times)], 
+          select_objs[j,!is.na(select_objs[j,])],
+          col=pal[j],
+          lwd=linelwd)
+  })
+  
+  par(xpd=TRUE)
+  subfigure_label(par()$usr, -0.1, 1.1, "(a)", cex.label = 1.3)
+  par(xpd=FALSE)
+  
+  
+  plot(0,type="n", xlim=range(test_times), ylim=rev(range(select_ranks, na.rm=TRUE)),
+       xlab="Catchment time limit (mins)", ylab="Site ranking",
+       #main="Sensitivity to catchment limit\n(Malinau district)",
+       col=pal[1], cex.lab=1.5, cex.main=1.5,lty=1, xaxt="n")
+  axis(1, test_times, test_times)
+  abline(v=100, lty=5, col="grey60", lwd=linelwd)
+  abline(h=0:nrow(select_ranks), col="grey80", lwd=1)
+  tmp = sapply(1:nrow(select_ranks), function(j){
+    tmp = sum(!is.na(select_ranks[j,]))
+    lines(test_times[(length(test_times)-tmp+1):length(test_times)], 
+          select_ranks[j,!is.na(select_ranks[j,])],
+          col=pal[j],
+          lwd=linelwd)
+    return(ifelse(tmp == length(test_times),
+                  NA,
+                  select_ranks[j, max(which(is.na(select_ranks[j,]))) + 1]))
+  })
+  
+  par(xpd=TRUE)
+  subfigure_label(par()$usr, -0.1, 1.1, "(b)", cex.label = 1.3)
+  par(xpd=FALSE)
+  
+  
+  dev.off()}

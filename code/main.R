@@ -305,9 +305,115 @@ summary_comb(malinau_obj5, malinau_sites, malinau_obj1)
 
 
 ##################################################################################
+# Now try for Langkat
 
+langkat_sites <- health_sites[health_sites$regency == "LANGKAT",]
 
+langkat_time <- stack(langkat_sites$time_catch) %>%
+  trim()
+langkat_time[!is.na(langkat_time)] = 1
+langkat_obj <- crop(lulc_covs$objective, langkat_time)
 
+# now let's apply them: 
+langkat_obj1 = sapply(1:nrow(langkat_sites), function(x){
+  eval_obj_surface_mean(x, langkat_time, langkat_obj)
+}) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site=V2)
 
+# reordering langkat_sites by mean objective so that the sites in tables are sorted left to right ..
+langkat_sites <- langkat_sites[order(langkat_obj1$obj, decreasing = TRUE),]
+langkat_time <- langkat_time[[order(langkat_obj1$obj, decreasing = TRUE)]]
+langkat_distance_matrix = as.matrix(dist(langkat_sites[,c("lon","lat")], upper=TRUE))
 
+langkat_obj1 = sapply(1:nrow(langkat_sites), function(x){
+  eval_obj_surface_mean(x, langkat_time, langkat_obj)
+}) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site=V2)
 
+langkat_obj1_sum = sapply(1:nrow(langkat_sites), function(x){
+  eval_obj_surface_sum(x, langkat_time, langkat_obj)
+}) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site=V2)
+
+langkat_obj1_size = sapply(1:nrow(langkat_sites), function(x){
+  c(sum(!is.na(values(langkat_time[[x]]))), x)
+}) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site=V2)
+
+langkat_obj2 = combn(nrow(langkat_sites), 2, 
+                     eval_obj_surface_mean, TRUE, langkat_time, langkat_obj) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site1=V2, site2=V3) %>%
+  arrange(desc(obj))
+
+langkat_obj2_sum = combn(nrow(langkat_sites), 2,
+                         eval_obj_surface_sum, TRUE, langkat_time, langkat_obj) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site1=V2, site2=V3) %>%
+  arrange(desc(obj))
+
+langkat_obj2_size = combn(nrow(langkat_sites), 2,
+                          eval_catch_size, TRUE, langkat_time, langkat_obj) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site1=V2, site2=V3) %>%
+  arrange(desc(obj))
+
+langkat_obj2_dist = combn(nrow(langkat_sites), 2,
+                          eval_network_distance, TRUE, langkat_distance_matrix) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site1=V2, site2=V3) %>%
+  arrange(obj)
+
+# would be good to have some sort of a table with a graphical representation
+# do this when I get to it !
+
+# langkat_obj3 = combn(nrow(langkat_sites), 3, eval_obj_surface_mean, TRUE,
+#                      langkat_time, langkat_obj) %>%
+#   t() %>%
+#   as.data.frame() %>%
+#   rename(obj=V1, site1=V2, site2=V3, site3=V4) %>%
+#   arrange(desc(obj))
+# write.csv(langkat_obj3, "output/multiple_sites/langkat_mean_3.csv", row.names=FALSE)
+
+# langkat_obj4 = combn(nrow(langkat_sites), 4, eval_obj_surface_mean, TRUE,
+#                      langkat_time, langkat_obj) %>%
+#   t() %>%
+#   as.data.frame() %>%
+#   rename(obj=V1, site1=V2, site2=V3, site3=V4, site4=V5) %>%
+#   arrange(desc(obj))
+# write.csv(langkat_obj4, "output/multiple_sites/langkat_mean_4.csv", row.names=FALSE)
+
+langkat_obj5 = combn(nrow(langkat_sites), 5, eval_obj_surface_mean, TRUE,
+                     langkat_time, langkat_obj) %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(obj=V1, site1=V2, site2=V3, site3=V4, site4=V5, site5=V6) %>%
+  arrange(desc(obj))
+write.csv(langkat_obj5, "output/multiple_sites/langkat_mean_5.csv", row.names=FALSE)
+
+pairsdf <- langkat_obj2 %>%
+  left_join(langkat_obj2_size, by=c("site1", "site2")) %>%
+  left_join(langkat_obj2_sum, by=c("site1", "site2")) %>%
+  left_join(langkat_obj2_dist, by=c("site1", "site2")) %>%
+  #rename(mean_obj=obj.x, sum_obj=obj.x.x, catch_size=obj.y, net_dist=obj.y.y)
+  rename(`Mean\n Objective`=obj.x, `Sum\n Objective`=obj.x.x, `Catchment\n Size`=obj.y, 
+         `Network\n Distance`=obj.y.y) %>%
+  dplyr::select(-c("site1", "site2"))
+
+# maybe I should order sites in langkat_sites by langkat_obj1?
+summary_comb(langkat_obj2, langkat_sites, langkat_obj1)
+summary_comb(langkat_obj3, langkat_sites, langkat_obj1)
+summary_comb(langkat_obj4, langkat_sites, langkat_obj1)
+summary_comb(langkat_obj5, langkat_sites, langkat_obj1)
