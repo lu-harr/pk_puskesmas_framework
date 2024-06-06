@@ -485,6 +485,31 @@ for (i in 1:gridsize){
 }
 dev.off()}
 
+###############################################################################
+# MORE SITES IN THE DESIGNS !
+
+scatter_panel <- function(xxx, yyy, xlab="", ylab="", main=""){
+  # hardcoded for maximising and minimising
+  plot(xxx, yyy, xlab=xlab, ylab=ylab, main=main)
+  pareto <- psel(data.frame(x=xxx, y=yyy), high("x")*low("y"))
+  # draw_me_an_arrow(par()$usr, c(0.9,0.1), c(0.7,0.3), 
+  #                  width=0.05, headwidth=0.12, proplen = 0.7)
+  lines(pareto$x, pareto$y, col='#B1D668', lwd=2)
+  points(pareto$x, pareto$y, pch=21, bg=pal(nrow(pareto)), cex=1.5)
+}
+
+sites2 <- inner_join(langkat_obj2_sum, langkat_obj2_dist, by=c("site1", "site2"))
+sites3 <- inner_join(langkat_obj3_sum, langkat_obj3_dist, by=c("site1", "site2", "site3"))
+sites4 <- inner_join(langkat_obj4_sum, langkat_obj4_dist, by=c("site1", "site2", "site3", "site4"))
+sites5 <- inner_join(langkat_obj5_sum, langkat_obj5_dist, by=c("site1", "site2", "site3", "site4", "site5"))
+
+
+par(mfrow = c(4,3), mar=c(2,2,2,2))
+
+scatter_panel(sites2$obj.x, sites2$obj.y)
+scatter_
+
+
 
 
 
