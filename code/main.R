@@ -275,14 +275,14 @@ malinau_obj5 = combn(nrow(malinau_sites), 5, eval_obj_surface_mean, TRUE,
   rename(obj=V1, site1=V2, site2=V3, site3=V4, site4=V5, site5=V6) %>%
   arrange(desc(obj))
 
-pairsdf <- malinau_obj2 %>%
+malinau_pairsdf <- malinau_obj2 %>%
   left_join(malinau_obj2_size, by=c("site1", "site2")) %>%
   left_join(malinau_obj2_sum, by=c("site1", "site2")) %>%
   left_join(malinau_obj2_dist, by=c("site1", "site2")) %>%
   #rename(mean_obj=obj.x, sum_obj=obj.x.x, catch_size=obj.y, net_dist=obj.y.y)
   rename(`Mean\n Objective`=obj.x, `Sum\n Objective`=obj.x.x, `Catchment\n Size`=obj.y, 
-         `Network\n Distance`=obj.y.y) %>%
-  dplyr::select(-c("site1", "site2"))
+         `Network\n Distance`=obj.y.y) #%>%
+  #dplyr::select(-c("site1", "site2"))
 
 panel.hist <- function(x, ...)
 {
@@ -406,14 +406,14 @@ langkat_obj3 <- read.csv("output/multiple_sites/langkat_mean_3.csv")
 langkat_obj4 <- read.csv("output/multiple_sites/langkat_mean_4.csv")
 langkat_obj5 <- read.csv("output/multiple_sites/langkat_mean_5.csv")
 
-pairsdf <- langkat_obj2 %>%
+langkat_pairsdf <- langkat_obj2 %>%
   left_join(langkat_obj2_size, by=c("site1", "site2")) %>%
   left_join(langkat_obj2_sum, by=c("site1", "site2")) %>%
   left_join(langkat_obj2_dist, by=c("site1", "site2")) %>%
   #rename(mean_obj=obj.x, sum_obj=obj.x.x, catch_size=obj.y, net_dist=obj.y.y)
   rename(`Mean\n Objective`=obj.x, `Sum\n Objective`=obj.x.x, `Catchment\n Size`=obj.y, 
-         `Network\n Distance`=obj.y.y) %>%
-  dplyr::select(-c("site1", "site2"))
+         `Network\n Distance`=obj.y.y) #%>%
+  #dplyr::select(-c("site1", "site2"))
 
 # maybe I should order sites in langkat_sites by langkat_obj1?
 summary_comb(langkat_obj2, langkat_sites, langkat_obj1)

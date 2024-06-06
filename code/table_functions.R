@@ -446,3 +446,13 @@ ranked_map = function(all_points, map_tweaks, ranks, regency, catch_tag, outpath
   #   dev.off()
   # }
 }
+
+
+
+
+
+
+
+
+
+

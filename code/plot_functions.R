@@ -159,3 +159,57 @@ label_two_combs = function(ranked_combs, locdf,
     
   }
 }
+
+
+draw_me_an_arrow <- function(plotbox, from, to, 
+                             width=0.1, proplen=0.8, headwidth=0.2,
+                             col='#B1D668'){
+  theta <- atan((from[2] - to[2]) / (from[1] - to[1]))
+  len <- sqrt((from[1] - to[1])**2 + (from[2] - to[2])**2)
+  
+  side1 <- width * c(sin(theta), cos(theta))
+  side2 <- proplen * len * c(cos(theta), sin(theta))
+  side3 <- (headwidth - width) * c(sin(theta), cos(theta))
+  
+  xxx <- c(0, side1[1], side1[1] + side2[1],
+           side1[1] + side2[1] + side3[1], 0, 
+           -1*side1[1] + side2[1] - side3[1],
+           -1*side1[1] + side2[1], -1*side1[1], 0)
+  yyy <- c(0,-1*side1[2], -1*side1[2] + side2[2],
+           -1*side1[2] + side2[2] - side3[2],
+           0,side1[2] + side2[2] + side3[2],
+           side1[2] + side2[2], side1[2], 0)
+  
+  
+  if (from[1] <= to[1]){
+    xxx = xxx + from[1]
+    xxx[5] = to[1]
+  } else {
+    xxx = xxx*-1 + from[1]
+    xxx[5] = to[1]
+  }
+  
+  if (from[1] <= to[1]){
+    yyy = yyy + from[2]
+    yyy[5] = to[2]
+  } else {
+    yyy = yyy*-1 + from[2]
+    yyy[5] = to[2]
+  }
+  
+  xxx <- xxx * (plotbox[2] - plotbox[1]) + plotbox[1]
+  yyy <- yyy * (plotbox[4] - plotbox[3]) + plotbox[3]
+  
+  polygon(xxx, yyy, col=alpha(col, 0.6), border=NA)
+}
+
+# to test it out:
+# plot(0, xlim=c(0,1), ylim=c(0,1))
+# draw_me_an_arrow(par()$usr, c(0.1,0.5), c(0.5, 0.4))
+# draw_me_an_arrow(par()$usr, c(0.1,0.1), c(0.5, 0.5))
+# draw_me_an_arrow(par()$usr, c(0.9,0.9), c(0.5, 0.5))
+# draw_me_an_arrow(par()$usr, c(0.9,0.1), c(0.5,0.5))
+
+
+
+

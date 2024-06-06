@@ -127,7 +127,7 @@ pal=rev(viridis(12)[2:11])
      height=2200, width=1800, pointsize=35)
   
   # get ready for the most cursed use of oma in a bit
-  pairs(pairsdf, oma=c(4,5,54,35), new=TRUE, cex.labels=1.2, cex.axis=0.8,
+  pairs(dplyr::select(malinau_pairsdf, -c("site1", "site2")), oma=c(4,5,54,35), new=TRUE, cex.labels=1.2, cex.axis=0.8,
         #lower.panel=panel.hist, 
         cex=0.8)
   
@@ -188,11 +188,6 @@ pal=rev(viridis(12)[2:11])
   plot(0, type="n", axes=FALSE)
   subfigure_label(par()$usr,0.1,1,"(e)",1.3)
   
-  dev.off()}
-
-{png("figures/malinau_one_obj_pairs.png",
-     height=1000, width=1000, pointsize=30)
-  pairs(pairsdf)
   dev.off()}
 
 
@@ -307,7 +302,7 @@ pal=rev(viridis(12)[2:11])
      height=2200, width=1800, pointsize=35)
   
   # get ready for the most cursed use of oma in a bit
-  pairs(pairsdf, oma=c(4,5,54,35), new=TRUE, cex.labels=1.2, cex.axis=0.8,
+  pairs(dplyr::select(langkat_pairsdf, -c("site1","site2"))[,c(1,3,2,4)], oma=c(4,5,54,35), new=TRUE, cex.labels=1.2, cex.axis=0.8,
         #lower.panel=panel.hist, 
         cex=0.8)
   
@@ -368,9 +363,128 @@ pal=rev(viridis(12)[2:11])
   plot(0, type="n", axes=FALSE)
   subfigure_label(par()$usr,0.1,1,"(e)",1.3)
   
+  par(oma=c(3.1,33,55,7), mfrow=c(4,1), mar=c(2.1,4.1,0.1,0.1), new=TRUE, mfg=c(1,1))
+  h2 <- hist(langkat_obj2$obj, 
+             breaks=seq(min(langkat_obj2$obj), max(langkat_obj2$obj), length.out=40), 
+             main="", cex.axis=0.7, xlab="", ylab="")
+  h3 <- hist(langkat_obj2_sum$obj, 
+             breaks=seq(min(langkat_obj2_sum$obj), max(langkat_obj2_sum$obj), length.out=40), 
+             main="", cex.axis=0.7, xlab="", ylab="")
+  h4 <- hist(langkat_obj2_size$obj,
+             breaks=seq(min(langkat_obj2_size$obj), max(langkat_obj2_size$obj), length.out=40), 
+             main="", cex.axis=0.7, xlab="", ylab="")
+  h5 <- hist(langkat_obj2_dist$obj, 
+             breaks=seq(min(langkat_obj2_dist$obj), max(langkat_obj2_dist$obj), length.out=40), 
+             cex.lab=1.2, cex.axis=0.7,
+             xlab="Objective value", main="", ylab="")
+  mtext("Frequency", 2, outer=TRUE, cex=0.8, line=-1.5)
+  
+  par(mfrow=c(1,1), new=TRUE, oma=c(0,0,0,0), mar=c(3.1,25.5,34.1,2.1))
+  plot(0, xlim=c(0,1), ylim=c(0,1), axes=FALSE, xlab="", ylab="", type="n")
+  text(rep(1), seq(0.1,0.83, length.out=4), names(pairsdf)[c(4,2,3,1)], cex=0.9)
+  par(xpd=NA)
+  subfigure_label(par()$usr,-0.1,0.9,"(f)", 0.9)
+  
   dev.off()}
 
 {png("figures/langkat_one_obj_pairs.png",
      height=1000, width=1000, pointsize=30)
   pairs(pairsdf)
   dev.off()}
+
+
+
+# let's do a pareto figure?
+# pairs?
+library(rPref)
+head(langkat_pairsdf)
+
+scatter_panel <- function(x, y){
+  plot(x,y,col="grey80")
+  message(x)
+  pareto <- psel(as.data.frame(x=x,y=y), high("x")*high("y"))
+}
+
+# custom pairs ... I ain't got time to work out how the real think works (eyerolls are costly)
+# think about colour ...
+# I like spectral but the middle yellow is too light ...
+# paste(paste0("'", brewer.pal(11,"Spectral"), "'"), collapse=",")
+spectral <- c('#9E0142','#D53E4F','#F46D43','#FDAE61',"#F8DA56",#"#FEFC60",#'#FEE08B',#'#FFFFBF',
+              #'#E6F598',
+              '#B1D668','#66C2A5','#3288BD','#5E4FA2')
+pal <- colorRampPalette(spectral)
+
+{png("figures/multiple_sites/langkat_multi_obj_two_sites.png",
+    height=2200, width=2100, pointsize=35)
+
+objnames <- subset(names(langkat_pairsdf), !grepl("site", names(langkat_pairsdf)))
+gridsize <- length(objnames)
+
+par(mfrow=rep(gridsize, 2), mar=rep(1.5,4), xpd=NA)
+for (i in 1:gridsize){
+  for (j in 1:gridsize){
+    if (i == j){
+      plot(0, type="n", axes=FALSE, xlim=c(-1,1), ylim=c(-1,1), xlab="", ylab="")
+      text(0, 0, objnames[i], cex=2)
+    } else if (i < j){
+      # scatter plots
+      subj <- data.frame(x=langkat_pairsdf[,objnames[i]], 
+                         y=langkat_pairsdf[,objnames[j]])
+      plot(subj$y, subj$x, xlab="", ylab="", col="grey30", type="n")
+      if (j == 4){
+        # minimise network distance .. assuming network distance is fourth column (and doesn't end up in i)
+        pareto <- psel(subj, high("x")*low("y"))
+        draw_me_an_arrow(par()$usr, c(0.9,0.1), c(0.7,0.3), 
+                         width=0.05, headwidth=0.12, proplen = 0.7)
+      } else {
+        pareto <- psel(subj, high("x")*high("y"))
+        draw_me_an_arrow(par()$usr, c(0.1,0.1), c(0.3,0.3), 
+                         width=0.05, headwidth=0.12, proplen = 0.7)
+      }
+      pareto <- pareto[order(pareto$x),]
+      points(subj$y, subj$x, col="grey30",)
+      lines(pareto$y, pareto$x, col='#B1D668', lwd=2)
+      points(pareto$y, pareto$x, pch=21, bg=pal(nrow(pareto)), cex=1.5)
+      
+    } else if (i > j){
+      # maps
+      plot(st_geometry(district_shapes[district_shapes$district_name == "LANGKAT",]))
+      if (i == 4){
+        # minimise network distance .. assuming network distance is fourth column (and doesn't end up in i)
+        pareto <- psel(data.frame(x=langkat_pairsdf[,objnames[i]],
+                                  y=langkat_pairsdf[,objnames[j]],
+                                  site1=langkat_pairsdf[,"site1"],
+                                  site2=langkat_pairsdf[,"site2"]),
+                       low("x")*high("y"))
+      } else {
+        pareto <- psel(data.frame(x=langkat_pairsdf[,objnames[i]],
+                                  y=langkat_pairsdf[,objnames[j]],
+                                  site1=langkat_pairsdf[,"site1"],
+                                  site2=langkat_pairsdf[,"site2"]),
+                       high("x")*high("y"))
+      }
+      points(langkat_sites[,c("lon","lat")], pch=4, col="grey30")
+      # label_two_combs(pareto, langkat_sites,
+      #                 centre=c(98.22, 3.72),
+      #                 label_radius=0.62,
+      #                 n_toadstools = 60,
+      #                 #testing=TRUE,
+      #                 gap=0.99,
+      #                 pal=pal(nrow(pareto)),
+      #                 labs="")
+      tmppal <- pal(nrow(pareto))
+      sapply(1:nrow(pareto), function(x){
+        lines(langkat_sites[unlist(pareto[x,c("site1", "site2")]), c("lon","lat")],
+              col=tmppal[x], lwd=3)
+      })
+      ptcex <- table(unlist(pareto[,c("site1","site2")]))
+      points(langkat_sites[as.numeric(names(ptcex)), c("lon", "lat")],
+             cex=ptcex*1.2)
+    }
+  }
+}
+dev.off()}
+
+
+
+
