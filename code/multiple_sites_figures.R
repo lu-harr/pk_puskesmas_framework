@@ -488,26 +488,115 @@ dev.off()}
 ###############################################################################
 # MORE SITES IN THE DESIGNS !
 
-scatter_panel <- function(xxx, yyy, xlab="", ylab="", main=""){
+scatter_panel <- function(sites, xlab="", ylab="", main="", 
+                          lims=c(min(sites$obj.x), max(sites$obj.x), min(sites$obj.y), max(sites$obj.y))){
   # hardcoded for maximising and minimising
-  plot(xxx, yyy, xlab=xlab, ylab=ylab, main=main)
-  pareto <- psel(data.frame(x=xxx, y=yyy), high("x")*low("y"))
-  # draw_me_an_arrow(par()$usr, c(0.9,0.1), c(0.7,0.3), 
-  #                  width=0.05, headwidth=0.12, proplen = 0.7)
-  lines(pareto$x, pareto$y, col='#B1D668', lwd=2)
-  points(pareto$x, pareto$y, pch=21, bg=pal(nrow(pareto)), cex=1.5)
+  plot(sites[,c("obj.x", "obj.y")], xlab=xlab, ylab=ylab, main=main,
+       xlim=lims[1:2], ylim=lims[3:4], cex.lab=1.3, cex.main=1.3)
+  pareto <- psel(sites, high("obj.x")*low("obj.y"))
+  draw_me_an_arrow(par()$usr, c(0.4,0.6), c(0.6,0.4),
+                   width=0.05, headwidth=0.12, proplen = 0.7)
+  pareto <- pareto[order(pareto$obj.x),]
+  lines(pareto$obj.x, pareto$obj.y, col='#B1D668', lwd=2)
+  points(pareto$obj.x, pareto$obj.y, pch=21, bg=pal(nrow(pareto)), cex=1.5)
 }
+
+map_panel <- function(sites1, sites, district){
+  pareto <- psel(sites, high("obj.x")*low("obj.y"))
+  pareto <- pareto[order(pareto$obj.x),]
+  plot(st_geometry(district_shapes[district_shapes$district_name == district,]))
+  points(sites1[,c('lon', "lat")], pch=4, col="grey60")
+  
+  tmppal <- pal(nrow(pareto))
+  cols <- grep("site", names(pareto))
+  sapply(1:nrow(pareto), function(x){
+    lines(sites1[unlist(pareto[x, c(cols, cols[1])]), c("lon","lat")],
+          col=tmppal[x], lwd=3)
+  })
+  
+  ptcex <- table(unlist(pareto[,cols]))
+  points(langkat_sites[as.numeric(names(ptcex)), c("lon", "lat")],
+         cex=ptcex*1.2)
+}
+map_panel(langkat_sites, sites3, "LANGKAT")
 
 sites2 <- inner_join(langkat_obj2_sum, langkat_obj2_dist, by=c("site1", "site2"))
 sites3 <- inner_join(langkat_obj3_sum, langkat_obj3_dist, by=c("site1", "site2", "site3"))
 sites4 <- inner_join(langkat_obj4_sum, langkat_obj4_dist, by=c("site1", "site2", "site3", "site4"))
 sites5 <- inner_join(langkat_obj5_sum, langkat_obj5_dist, by=c("site1", "site2", "site3", "site4", "site5"))
+sites6 <- inner_join(langkat_obj6_sum, langkat_obj6_dist, by=c("site1", "site2", "site3", "site4", "site5", "site6"))
 
+{png("figures/multiple_sites/langkat_sum_dist_2_6_option1.png",
+    height=3000,
+    width=2000,
+    pointsize=40)
+par(mfrow = c(4,3), mar=c(4,1.5,2,1.5), oma=c(0,4,0,0), xpd=NA)
+scatter_panel(sites2, main="2 sites", xlab="Sum objective", ylab="Network distance")
+scatter_panel(sites3, main="3 sites", xlab="Sum objective")
+scatter_panel(sites4, main="4 sites", xlab="Sum objective")
+map_panel(langkat_sites, sites2, "LANGKAT")
+map_panel(langkat_sites, sites3, "LANGKAT")
+map_panel(langkat_sites, sites4, "LANGKAT")
+scatter_panel(sites5, main="5 sites", xlab="Sum objective", ylab="Network distance")
+scatter_panel(sites6, main="6 sites", xlab="Sum objective")
+plot(0, type="n", axes=FALSE, xlab="", ylab="")
+map_panel(langkat_sites, sites6, "LANGKAT")
+map_panel(langkat_sites, sites5, "LANGKAT")
+dev.off()}
 
-par(mfrow = c(4,3), mar=c(2,2,2,2))
+alllims <- data.frame(summin=c(min(langkat_obj2_sum$obj),
+                            min(langkat_obj3_sum$obj),
+                            min(langkat_obj4_sum$obj),
+                            min(langkat_obj5_sum$obj),
+                            min(langkat_obj6_sum$obj)),
+                   summax=c(max(langkat_obj2_sum$obj),
+                            max(langkat_obj3_sum$obj),
+                            max(langkat_obj4_sum$obj),
+                            max(langkat_obj5_sum$obj),
+                            max(langkat_obj6_sum$obj)),
+                   distmin=c(min(langkat_obj2_dist$obj),
+                            min(langkat_obj3_dist$obj),
+                            min(langkat_obj4_dist$obj),
+                            min(langkat_obj5_dist$obj),
+                            min(langkat_obj6_dist$obj)),
+                   distmax=c(max(langkat_obj2_dist$obj),
+                            max(langkat_obj3_dist$obj),
+                            max(langkat_obj4_dist$obj),
+                            max(langkat_obj5_dist$obj),
+                            max(langkat_obj6_dist$obj)))
 
-scatter_panel(sites2$obj.x, sites2$obj.y)
-scatter_
+{png("figures/multiple_sites/langkat_sum_dist_2_6_option2.png",
+    height=2500,
+    width=2000,
+    pointsize=40)
+par(mfrow=c(3,3), mar=c(4.1,1.1,3.1,1.1), oma=c(0,3,0,0), xpd=NA)
+scatter_panel(sites2, main="2 sites", xlab="Sum objective", ylab="Network distance objective",
+              lims=c(min(alllims$summin), max(alllims$summax), min(alllims$distmin), max(alllims$distmax)))
+scatter_panel(sites3, main="3 sites", xlab="Sum objective",
+              lims=c(min(alllims$summin), max(alllims$summax), min(alllims$distmin), max(alllims$distmax)))
+scatter_panel(sites4, main="4 sites", xlab="Sum objective",
+              lims=c(min(alllims$summin), max(alllims$summax), min(alllims$distmin), max(alllims$distmax)))
+scatter_panel(sites5, main="4 sites", xlab="Sum objective", ylab="Network distance objective",
+              lims=c(min(alllims$summin), max(alllims$summax), min(alllims$distmin), max(alllims$distmax)))
+scatter_panel(sites6, main="5 sites", xlab="Sum objective",
+              lims=c(min(alllims$summin), max(alllims$summax), min(alllims$distmin), max(alllims$distmax)))
+
+par(mfrow=c(6,1), mfg=c(5,1), xpd=FALSE, bty="n", mar=c(4.1,1.1,4.1,1.1))
+plot(0, xlim=c(180, max(alllims$summax)+10), ylim=c(0,1),
+     type="n", yaxt="n", ylab="", xlab="Sum objective", cex.lab=1.3)
+abline(v=alllims$summax, col=viridis(7)[2:6], lwd=5)
+par(xpd=NA)
+text(c(alllims$summax[1:2], alllims$summax[3]-1, alllims$summax[4], alllims$summax[5]+1), 
+     c(rep(1.35, 3), 1.6, 1.35), paste0(2:6, " sites"), col=viridis(7)[2:6], font=2, cex=1.3)
+lines(c(0, 1.2), rep(alllims$summax[4], 2), lwd=5, col=viridis(7)[5])
+par(xpd=FALSE)
+plot(0, xlim=c(0.8, max(alllims$distmax)+0.2), ylim=c(0,1),
+     type="n", yaxt="n", ylab="", xlab="Network distance objective", cex.lab=1.3)
+abline(v=alllims$distmax, lwd=5, col=viridis(7)[2:6])
+par(xpd=NA)
+text(alllims$distmax, rep(1.35, 5), paste0(2:6, " sites"), col=viridis(7)[2:6], font=2, cex=1.3)
+dev.off()}
+
 
 
 
