@@ -5,10 +5,8 @@ pointcex_adjust = 0.8
 pal=rev(viridis(12)[2:11])
 
 {png("figures/multiple_sites/malinau_one_obj_2_5_comb.png",
-  #    height=1800, width=1700, pointsize=40)
-  # par(xpd=NA, mfrow=c(2,2), mar=c(1,1,1,1))
-  height=2600, width=1700, pointsize=40)
-  par(xpd=NA, mfrow=c(3,2), mar=c(1,1,1,1))
+  height=2400, width=1700, pointsize=40)
+  par(xpd=NA, mfrow=c(2,2), mar=c(1,1,1,1), oma=c(17,0,0,0))
   set.seed(2)
   plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
   )
@@ -87,21 +85,30 @@ pal=rev(viridis(12)[2:11])
   subfigure_label(par()$usr,0.1,0.9,"(d)", 1.2)
   
   hbreaks <- seq(min(malinau_obj2$obj), max(malinau_obj2$obj), length.out=40)
-  par(oma=c(5.1,2,55,25), mfrow=c(4,1), mar=c(0.1,4.1,0.1,0.1), new=TRUE, mfg=c(1,1))
-  h2 <- hist(malinau_obj2$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
-  h3 <- hist(malinau_obj3$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
-  h4 <- hist(malinau_obj4$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
-  h5 <- hist(malinau_obj5$obj, breaks=hbreaks, cex.lab=1.2, cex.axis=0.7,
-             xlab="Mean objective value", main="", ylab="")
-  mtext("Frequency", 2, outer=TRUE, cex=0.8)
-  
-  par(mfrow=c(1,1), new=TRUE, oma=c(0,0,0,0), mar=c(3.1,4.1,36.1,10.1))
-  plot(0, xlim=c(0,1), ylim=c(0,1), bty="n", axes=FALSE, xlab="", ylab="", type="n")
-  text(rep(0.8), seq(0.1,0.9, length.out=4), paste(5:2, "sites"), cex=0.9)
+  par(oma=c(5.1,12,55,12), mfrow=c(4,1), mar=c(0.1,2.1,0.1,0.1), new=TRUE, mfg=c(1,1), xpd=TRUE)
+  hist(malinau_obj2$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
+  abline(v=malinau_obj2$obj[1:10], col=pal, lwd=2)
+  hist(malinau_obj3$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
+  abline(v=malinau_obj3$obj[1:10], col=pal, lwd=2)
+  hist(malinau_obj4$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
+  abline(v=malinau_obj4$obj[1:10], col=pal, lwd=2)
+  hist(malinau_obj5$obj, breaks=hbreaks, cex.lab=1.2, cex.axis=0.7,
+        main="", ylab="")
+  abline(v=malinau_obj5$obj[1:10], col=pal, lwd=2)
   par(xpd=NA)
-  subfigure_label(par()$usr,-0.1,0.9,"(e)", 0.8)
+  mtext("Frequency", 2, outer=TRUE, cex=0.8)
+  mtext("Mean objective value", 1, outer=TRUE, cex=0.8, line=2)
+  
+  par(mfrow=c(1,1), new=TRUE, oma=c(3.1,1,36,1), mar=c(0.1,2.1,0.1,2.1))
+  plot(0, xlim=c(0,1), ylim=c(0,1), xlab="", ylab="", type="n", axes=FALSE)
+  text(rep(0.9), seq(0.1,0.9, length.out=4), paste(5:2, "sites"), cex=0.9)
+  par(xpd=NA)
+  subfigure_label(par()$usr,0.18,1.02,"(e)", 1)
   
   dev.off()}
+
+
+
 
 # surveillance designs of two sites with some different objectives ...
 

@@ -45,6 +45,70 @@ dist_mean_objs = read.csv("output/distance_limits_mean_obj.csv")
 # write.csv(time_mean_objs, "output/travel_time_limits_mean_obj.csv", row.names=FALSE)
 time_mean_objs = read.csv("output/travel_time_limits_mean_obj.csv")
 
+# malinau_sites = health_sites %>%
+#   filter(regency == "MALINAU")
+# malinau_time_mean_objs = data.frame("x"=rep(1, nrow(malinau_sites)))
+# malinau_time_size_objs = data.frame("x"=rep(1, nrow(malinau_sites)))
+# for (i in 1:length(test_times)){
+#   message(paste0(i, "/", length(test_times)))
+#   catches = sapply(1:nrow(malinau_sites),
+#                    getTimeCatchment,
+#                     points=health_points[health_sites$regency == "MALINAU",],
+#                     transition_surfaces=transition_surfaces,
+#                     island_groups=malinau_sites$island_group,
+#                     to_surface=lulc_covs$objective,
+#                     time_cap=test_times[i])
+#   sums = lapply(catches,
+#                 function(x){mean(values(x), na.rm = TRUE)})
+#   sizes = lapply(catches,
+#                  function(x){sum(!is.na(values(x)))})
+#   malinau_time_mean_objs[,i] = unlist(sums)
+#   malinau_time_size_objs[,i] = unlist(sizes)
+# }
+# colnames(malinau_time_mean_objs) = paste0(test_times, "mins")
+# colnames(malinau_time_size_objs) = paste0(test_times, "mins")
+# malinau_time_mean_objs$name = malinau_sites$name
+# malinau_time_size_objs$name = malinau_sites$name
+# write.csv(malinau_time_mean_objs,
+#           "output/travel_time_limits_mean_obj_malinau.csv", row.names=FALSE)
+# write.csv(malinau_time_size_objs,
+#           "output/travel_time_limits_size_obj_malinau.csv", row.names=FALSE)
+malinau_time_mean_objs <- read.csv("output/travel_time_limits_mean_obj_malinau.csv")
+malinau_time_size_objs <- read.csv("output/travel_time_limits_size_obj_malinau.csv")
+
+langkat_sites = health_sites %>%
+  filter(regency == "LANGKAT")
+langkat_time_mean_objs = data.frame("x"=rep(1, nrow(langkat_sites)))
+langkat_time_size_objs = data.frame("x"=rep(1, nrow(langkat_sites)))
+for (i in 1:length(test_times)){
+  message(paste0(i, "/", length(test_times)))
+  catches = sapply(1:nrow(langkat_sites),
+                   getTimeCatchment,
+                   points=health_points[health_sites$regency == "LANGKAT",],
+                   transition_surfaces=transition_surfaces,
+                   island_groups=langkat_sites$island_group,
+                   to_surface=lulc_covs$objective,
+                   time_cap=test_times[i])
+  sums = lapply(catches,
+                function(x){mean(values(x), na.rm = TRUE)})
+  sizes = lapply(catches,
+                 function(x){sum(!is.na(values(x)))})
+  langkat_time_mean_objs[,i] = unlist(sums)
+  langkat_time_size_objs[,i] = unlist(sizes)
+}
+colnames(langkat_time_mean_objs) = paste0(test_times, "mins")
+colnames(langkat_time_size_objs) = paste0(test_times, "mins")
+langkat_time_mean_objs$name = langkat_sites$name
+langkat_time_size_objs$name = langkat_sites$name
+write.csv(langkat_time_mean_objs,
+          "output/travel_time_limits_mean_obj_langkat.csv", row.names=FALSE)
+write.csv(langkat_time_size_objs,
+          "output/travel_time_limits_size_obj_langkat.csv", row.names=FALSE)
+
+langkat_time_mean_objs <- read.csv("output/travel_time_limits_mean_obj_langkat.csv")
+langkat_time_size_objs <- read.csv("output/travel_time_limits_size_obj_langkat.csv")
+
+
 ################################################################################
 # Here come the plots
 
@@ -288,7 +352,7 @@ pal <- viridis(100)[seq(25,93,length.out=nrow(select_objs))]
 par(mar=c(4.1,4.1,4.1,2.1), mfrow=c(1,2))
 
 plot(0,type="n", xlim=range(test_times), ylim=range(select_objs, na.rm=TRUE),
-     xlab="Catchment time limit (mins)", ylab="Site objective value",
+     xlab="Catchment time limit (mins)", ylab="Mean objective value",
      #main="Sensitivity to catchment limit\n(Malinau district)",
      col=pal[1], cex.lab=1.5, cex.main=1.5,lty=1, xaxt="n")
 axis(1, test_times, test_times)
@@ -365,7 +429,7 @@ pal <- viridis(100)[seq(25,93,length.out=nrow(select_objs))]
   par(mar=c(4.1,4.1,4.1,2.1), mfrow=c(1,2))
   
   plot(0,type="n", xlim=range(test_times), ylim=range(select_objs, na.rm=TRUE),
-       xlab="Catchment time limit (mins)", ylab="Site objective value",
+       xlab="Catchment time limit (mins)", ylab="Mean objective value",
        #main="Sensitivity to catchment limit\n(langkat district)",
        col=pal[1], cex.lab=1.5, cex.main=1.5,lty=1, xaxt="n")
   axis(1, test_times, test_times)
@@ -407,3 +471,39 @@ pal <- viridis(100)[seq(25,93,length.out=nrow(select_objs))]
   
   
   dev.off()}
+
+
+##############################################################################
+# MEDDLING WITH CATCHMENT SIZES ... HOW DOES THIS GO?
+# Hmm not sure if it tells me anything interesting?
+
+select_objs = time_mean_objs[which(health_sites$regency == "MALINAU"),
+                             1:length(test_times)]
+select_ranks = apply(select_objs, 2, function(x){rank(-x)})
+#select_ranks[which(select_objs == 0)] = 0
+select_ranks[which(is.na(select_objs))] = NA
+select_ranks <- select_ranks[order(select_objs$`100mins`), ]
+select_objs <-select_objs[order(select_objs$`100mins`), ]
+
+
+linelwd <- 4
+pal <- viridis(100)[seq(25,93,length.out=nrow(select_objs))]
+
+{png(paste0("figures/catch_limit_sensitivity/malinau_time_limits_size.png"),
+     width = 1600,
+     height = 1600,
+     pointsize = 40)
+  par(mar=c(4.1,4.1,4.1,2.1), mfrow=c(1,1))
+  
+  plot(0, type="n", xlim=log10(range(malinau_time_size_objs[,grep("mins", names(malinau_time_size_objs))])+1), 
+       ylim=range(malinau_time_mean_objs[,grep("mins", names(malinau_time_mean_objs))], na.rm=TRUE),
+       xlab="Catchment size", ylab="Mean objective", main="Mean objective and catchment size as time limit is increased")
+  for (i in 1:nrow(malinau_time_size_objs)){
+    lines(log10(malinau_time_size_objs[i, grep("mins", names(malinau_time_size_objs))]+1),
+          malinau_time_mean_objs[i, grep("mins", names(malinau_time_mean_objs))])
+    points(log10(malinau_time_size_objs[i, grep("mins", names(malinau_time_size_objs))]+1),
+           malinau_time_mean_objs[i, grep("mins", names(malinau_time_mean_objs))], pch=16, col=alpha("blue", 0.2))
+  }
+  
+  dev.off()}
+
