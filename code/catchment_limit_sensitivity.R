@@ -76,34 +76,34 @@ time_mean_objs = read.csv("output/travel_time_limits_mean_obj.csv")
 malinau_time_mean_objs <- read.csv("output/travel_time_limits_mean_obj_malinau.csv")
 malinau_time_size_objs <- read.csv("output/travel_time_limits_size_obj_malinau.csv")
 
-langkat_sites = health_sites %>%
-  filter(regency == "LANGKAT")
-langkat_time_mean_objs = data.frame("x"=rep(1, nrow(langkat_sites)))
-langkat_time_size_objs = data.frame("x"=rep(1, nrow(langkat_sites)))
-for (i in 1:length(test_times)){
-  message(paste0(i, "/", length(test_times)))
-  catches = sapply(1:nrow(langkat_sites),
-                   getTimeCatchment,
-                   points=health_points[health_sites$regency == "LANGKAT",],
-                   transition_surfaces=transition_surfaces,
-                   island_groups=langkat_sites$island_group,
-                   to_surface=lulc_covs$objective,
-                   time_cap=test_times[i])
-  sums = lapply(catches,
-                function(x){mean(values(x), na.rm = TRUE)})
-  sizes = lapply(catches,
-                 function(x){sum(!is.na(values(x)))})
-  langkat_time_mean_objs[,i] = unlist(sums)
-  langkat_time_size_objs[,i] = unlist(sizes)
-}
-colnames(langkat_time_mean_objs) = paste0(test_times, "mins")
-colnames(langkat_time_size_objs) = paste0(test_times, "mins")
-langkat_time_mean_objs$name = langkat_sites$name
-langkat_time_size_objs$name = langkat_sites$name
-write.csv(langkat_time_mean_objs,
-          "output/travel_time_limits_mean_obj_langkat.csv", row.names=FALSE)
-write.csv(langkat_time_size_objs,
-          "output/travel_time_limits_size_obj_langkat.csv", row.names=FALSE)
+# langkat_sites = health_sites %>%
+#   filter(regency == "LANGKAT")
+# langkat_time_mean_objs = data.frame("x"=rep(1, nrow(langkat_sites)))
+# langkat_time_size_objs = data.frame("x"=rep(1, nrow(langkat_sites)))
+# for (i in 1:length(test_times)){
+#   message(paste0(i, "/", length(test_times)))
+#   catches = sapply(1:nrow(langkat_sites),
+#                    getTimeCatchment,
+#                    points=health_points[health_sites$regency == "LANGKAT",],
+#                    transition_surfaces=transition_surfaces,
+#                    island_groups=langkat_sites$island_group,
+#                    to_surface=lulc_covs$objective,
+#                    time_cap=test_times[i])
+#   sums = lapply(catches,
+#                 function(x){mean(values(x), na.rm = TRUE)})
+#   sizes = lapply(catches,
+#                  function(x){sum(!is.na(values(x)))})
+#   langkat_time_mean_objs[,i] = unlist(sums)
+#   langkat_time_size_objs[,i] = unlist(sizes)
+# }
+# colnames(langkat_time_mean_objs) = paste0(test_times, "mins")
+# colnames(langkat_time_size_objs) = paste0(test_times, "mins")
+# langkat_time_mean_objs$name = langkat_sites$name
+# langkat_time_size_objs$name = langkat_sites$name
+# write.csv(langkat_time_mean_objs,
+#           "output/travel_time_limits_mean_obj_langkat.csv", row.names=FALSE)
+# write.csv(langkat_time_size_objs,
+#           "output/travel_time_limits_size_obj_langkat.csv", row.names=FALSE)
 
 langkat_time_mean_objs <- read.csv("output/travel_time_limits_mean_obj_langkat.csv")
 langkat_time_size_objs <- read.csv("output/travel_time_limits_size_obj_langkat.csv")
@@ -506,4 +506,31 @@ pal <- viridis(100)[seq(25,93,length.out=nrow(select_objs))]
   }
   
   dev.off()}
+
+{png(paste0("figures/catch_limit_sensitivity/langkat_time_limits_size.png"),
+     width = 1600,
+     height = 1600,
+     pointsize = 40)
+  par(mar=c(4.1,4.1,4.1,2.1), mfrow=c(1,1))
+  
+  plot(0, type="n", xlim=log10(range(langkat_time_size_objs[,grep("mins", names(langkat_time_size_objs))])+1), 
+       ylim=range(langkat_time_mean_objs[,grep("mins", names(langkat_time_mean_objs))], na.rm=TRUE),
+       xlab="Catchment size", ylab="Mean objective", main="Mean objective and catchment size as time limit is increased")
+  for (i in 1:nrow(langkat_time_size_objs)){
+    lines(log10(langkat_time_size_objs[i, grep("mins", names(langkat_time_size_objs))]+1),
+          langkat_time_mean_objs[i, grep("mins", names(langkat_time_mean_objs))])
+    points(log10(langkat_time_size_objs[i, grep("mins", names(langkat_time_size_objs))]+1),
+           langkat_time_mean_objs[i, grep("mins", names(langkat_time_mean_objs))], 
+           pch=16, #col=pal(length(grep("mins", names(langkat_time_mean_objs)))))
+           col=alpha("blue", 0.2))
+  }
+  
+  dev.off()}
+
+
+
+
+
+
+
 

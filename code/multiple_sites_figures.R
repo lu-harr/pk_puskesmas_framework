@@ -371,19 +371,21 @@ pal=rev(viridis(12)[2:11])
   subfigure_label(par()$usr,0.1,1,"(e)",1.3)
   
   par(oma=c(3.1,33,55,7), mfrow=c(4,1), mar=c(2.1,4.1,0.1,0.1), new=TRUE, mfg=c(1,1))
-  h2 <- hist(langkat_obj2$obj, 
-             breaks=seq(min(langkat_obj2$obj), max(langkat_obj2$obj), length.out=40), 
+  par(xpd=FALSE)
+  hist(langkat_obj2$obj, breaks=seq(min(langkat_obj2$obj), max(langkat_obj2$obj), length.out=40), 
+        main="", cex.axis=0.7, xlab="", ylab="")
+  abline(v=langkat_obj2$obj[1:10], col=pal, lwd=2)
+  hist(langkat_obj2_sum$obj,breaks=seq(min(langkat_obj2_sum$obj), max(langkat_obj2_sum$obj), length.out=40), 
+       main="", cex.axis=0.7, xlab="", ylab="")
+  abline(v=langkat_obj2_sum$obj[1:10], col=pal, lwd=2)
+  hist(langkat_obj2_size$obj,breaks=seq(min(langkat_obj2_size$obj), max(langkat_obj2_size$obj), length.out=40), 
              main="", cex.axis=0.7, xlab="", ylab="")
-  h3 <- hist(langkat_obj2_sum$obj, 
-             breaks=seq(min(langkat_obj2_sum$obj), max(langkat_obj2_sum$obj), length.out=40), 
-             main="", cex.axis=0.7, xlab="", ylab="")
-  h4 <- hist(langkat_obj2_size$obj,
-             breaks=seq(min(langkat_obj2_size$obj), max(langkat_obj2_size$obj), length.out=40), 
-             main="", cex.axis=0.7, xlab="", ylab="")
-  h5 <- hist(langkat_obj2_dist$obj, 
-             breaks=seq(min(langkat_obj2_dist$obj), max(langkat_obj2_dist$obj), length.out=40), 
-             cex.lab=1.2, cex.axis=0.7,
-             xlab="Objective value", main="", ylab="")
+  abline(v=langkat_obj2_size$obj[1:10], col=pal, lwd=2)
+  hist(langkat_obj2_dist$obj, breaks=seq(min(langkat_obj2_dist$obj), max(langkat_obj2_dist$obj), length.out=40), 
+       cex.axis=0.7, xlab="", main="", ylab="")
+  abline(v=langkat_obj2_dist$obj[1:10], col=pal, lwd=2)
+  par(xpd=NA)
+  mtext("Objective Value", 1, outer=TRUE, cex=0.8, line=0.5)
   mtext("Frequency", 2, outer=TRUE, cex=0.8, line=-1.5)
   
   par(mfrow=c(1,1), new=TRUE, oma=c(0,0,0,0), mar=c(3.1,25.5,34.1,2.1))
