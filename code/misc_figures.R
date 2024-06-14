@@ -27,7 +27,7 @@ oranges <- brewer.pal(9, "Oranges")[3:6]
      height=2800,
      width=3000,
      pointsize=30)
-bg_col = "grey95"  
+bg_col = "grey85"  
 midfig <- c(0.155,0.845,0.31,0.69)
 textcex <- 1.8
 axcex <- 1.4

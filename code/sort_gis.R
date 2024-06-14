@@ -39,6 +39,9 @@ lulc_covs <- lulc_covs %>%
   mask(nw_idn_mask) %>%
   trim()
 
+world_ras <- world_ras %>%
+  crop(lulc_covs)
+
 #####################################################
 
 # drop these shps into the catchment_paper dir eventually ... or use MalariaAtlas pkg
