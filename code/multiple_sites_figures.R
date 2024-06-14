@@ -441,7 +441,6 @@ for (i in 1:gridsize){
       # scatter plots
       subj <- data.frame(x=langkat_pairsdf[,objnames[i]], 
                          y=langkat_pairsdf[,objnames[j]])
-      
       if (j == 4){
         # minimise network distance .. assuming network distance is fourth column (and doesn't end up in i)
         plot(subj$y, subj$x, xlab="", ylab="", col="grey30", type="n", xlim=rev(range(subj$y)))
@@ -467,29 +466,24 @@ for (i in 1:gridsize){
       lines(c(bb[1]+xadj, bb[2]-xadj, bb[2]-xadj, bb[1]+xadj, bb[1]+xadj), 
             c(bb[3]+yadj, bb[3]+yadj, bb[4]-yadj, bb[4]-yadj, bb[3]+yadj))
       if (i == 4){
-        # minimise network distance .. assuming network distance is fourth column (and doesn't end up in i)
+        # minimise network distance .. assuming network distance is fourth column 
+        # (and doesn't end up in i)
         pareto <- psel(data.frame(x=langkat_pairsdf[,objnames[i]],
                                   y=langkat_pairsdf[,objnames[j]],
                                   site1=langkat_pairsdf[,"site1"],
                                   site2=langkat_pairsdf[,"site2"]),
                        low("x")*high("y"))
+        pareto <- pareto[order(pareto$x),]
       } else {
         pareto <- psel(data.frame(x=langkat_pairsdf[,objnames[i]],
                                   y=langkat_pairsdf[,objnames[j]],
                                   site1=langkat_pairsdf[,"site1"],
                                   site2=langkat_pairsdf[,"site2"]),
                        high("x")*high("y"))
+        pareto <- pareto[order(pareto$y),]
       }
-      pareto <- pareto[order(pareto$x),]
+      
       points(langkat_sites[,c("lon","lat")], pch=4, col="grey30")
-      # label_two_combs(pareto, langkat_sites,
-      #                 centre=c(98.22, 3.72),
-      #                 label_radius=0.62,
-      #                 n_toadstools = 60,
-      #                 #testing=TRUE,
-      #                 gap=0.99,
-      #                 pal=pal(nrow(pareto)),
-      #                 labs="")
       tmppal <- pal(nrow(pareto))
       sapply(1:nrow(pareto), function(x){
         lines(langkat_sites[unlist(pareto[x,c("site1", "site2")]), c("lon","lat")],
