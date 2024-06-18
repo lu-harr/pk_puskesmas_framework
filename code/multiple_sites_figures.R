@@ -607,7 +607,7 @@ text(c(alllims$summax[1:2], alllims$summax[3]-1, alllims$summax[4], alllims$summ
      c(rep(1.2, 3), 1.45, 1.2),
      paste0(2:6, " sites"), col=viridis(7)[2:6], font=2, cex=1.3)
 
-plot(0, xlim=rev(c(0, max(alllims$distmin)+0.05)), ylim=c(0,1.5),
+plot(0, xlim=rev(c(0, max(alllims$distmin)+0.05)), ylim=c(0,1.5), 
      type="n", yaxt="n", ylab="", xlab="Network distance objective (minimising)", cex.lab=1.3)
 draw_me_an_arrow(par()$usr, c(0.42,0.4), c(0.57,0.4),
                  width=0.08, headwidth=0.2, proplen = 0.7)
@@ -617,7 +617,7 @@ for (i in 1:nrow(alllims)){
 text(alllims$distmin, rep(1.2, 5), paste0(2:6, " sites"), col=pal2, font=2, cex=1.3)
 
 par(mfrow=c(1,1), mar=rep(0.1, 4), oma=rep(0,4), new=TRUE)
-plot(0, xlab="", ylab="", axes=FALSE, xlim=c(0,1), ylim=c(0,1), bty="l")
+plot(0, xlab="", ylab="", axes=FALSE, xlim=c(0,1), ylim=c(0,1), bty="l", type="n")
 subfigure_label(par()$usr, 0.03,0.99,"(a)")
 subfigure_label(par()$usr, 0.03,0.33,"(b)")
 subfigure_label(par()$usr, 0.03,0.16,"(c)")
