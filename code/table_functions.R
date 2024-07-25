@@ -91,7 +91,7 @@ summary_table_regency = function(tab,
     kable_classic() %>%
     add_header_above(c(" "=4+rank_col,"Total"=1, "Maximum Single Value"=3)) %>%
     # rank col
-    column_spec(1, background = ifelse(dataset_vec == "prelim", "red", "white")) %>%
+    column_spec(1, background = ifelse(dataset_vec == "prelim", "grey80", "white")) %>%
     column_spec(2) %>%
     # objective col
     column_spec(2+rank_col, 
@@ -214,7 +214,7 @@ summary_xtable = function(tab,
                   function(x){
                     format(round(x, digits = 2), big.mark = ",", scientific = FALSE)
                   })) %>%
-    mutate(Rank = paste0(ifelse(dataset_vec == "prelim", "\\cellcolor{red}", ""),
+    mutate(Rank = paste0(ifelse(dataset_vec == "prelim", "\\cellcolor{lightgray}", ""),
                          "{", Rank, "}"),
            `Objective Mean` = paste0("\\cellcolor[HTML]{", coltab$`Objective Mean`,
                                      "}\\textcolor[HTML]{", coltab$obj_mean_font, 

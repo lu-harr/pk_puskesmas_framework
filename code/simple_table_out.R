@@ -10,14 +10,14 @@
     summary_xtable(tab = tmp_dist_summ,
                    row_index = which(health_sites$regency == regency),
                    dataset_vec = health_sites$dataset,
-                   cap = paste0(str_to_title(regency), " sites (distance catchments, x km)"), 
+                   cap = paste0(str_to_title(regency), " sites (distance catchments, 30 km)"), 
                    lab = paste0("tab:", gsub(" ", "_", str_to_lower(regency)), "_", "dist"),
                    rank_col=3)
     
     summary_xtable(tab = tmp_time_summ,
                    row_index = which(health_sites$regency == regency),
                    dataset_vec = health_sites$dataset,
-                   cap = paste0(str_to_title(regency), " sites (travel time catchments, x minutes)"), 
+                   cap = paste0(str_to_title(regency), " sites (travel time catchments, 100 minutes)"), 
                    lab = paste0("tab:", gsub(" ", "_", str_to_lower(regency)), "_", "time"),
                    rank_col=3)
     
@@ -33,9 +33,10 @@
     cat("\\centering\n")
     cat(paste0("\\includegraphics[width=\\textwidth]{figs/", formatted_regency,"_all_rank_map.png}\n"))
     cat(paste0("\\caption{Mapped best ranked sites in ", str_to_title(regency), " using catchment definitions of (a) distance-based 
-  limits of x km (Table \\ref{tab:", formatted_regency,"_dist}); (b) travel time-based limits of x 
+  limits of 30 km (Table \\ref{tab:", formatted_regency,"_dist}); (b) travel time-based limits of 100 
   minutes (Table \\ref{tab:", formatted_regency,"_time}); and (c) tesselated catchments (Table 
-  \\ref{tab:", formatted_regency,"_stretch}).}\n"))
+  \\ref{tab:", formatted_regency,"_stretch}). Site with ranks shaded in grey were suggested by surveillance study stakeholders. 
+ Eco-constraints are indicated in green (pass) and purple (fail), summarised as ``Eco-constraints Present''.}\n"))
     cat(paste0("\\label{fig:maps_", formatted_regency,"}\n"))
     cat("\\end{figure}\n")
     cat("\\clearpage\n")
@@ -227,6 +228,7 @@ langkat_points <- health_sites[which(health_sites$regency == "LANGKAT"),]
 langkat_unranked <- langkat_points[which(!1:nrow(langkat_points) %in% langkat_ranks),]
 langkat_points <- langkat_points[langkat_ranks,]
 
+# watch out! I'm bring in the idem pal >:) it's in misc_figures
 
 # doing it again but panelled with langkat ...
 {png(paste0("figures/", "langkat_malinau", "_time_rank_map.png"),
@@ -236,13 +238,13 @@ langkat_points <- langkat_points[langkat_ranks,]
   par(mfrow=c(1,2),
       mar=c(5.5,5.5,5.5,5.5),
       oma=c(0,0,0,4),
-      xpd = NA, bty="n")
+      xpd = FALSE, bty="n")
   
   # HERE'S LANGKAT
   plot(trim(mask(lulc_covs$brt_mean,
                  district_shapes[district_shapes$district_name == "LANGKAT",])),
        bty="n", axes=FALSE,
-       col=viridis(ncolours), breaks=colbreaks, legend=FALSE)
+       col=rev(idem_no_grey(ncolours)), breaks=colbreaks, legend=FALSE)
   plot(st_geometry(district_shapes[district_shapes$district_name == "LANGKAT",]), lwd=2, add=TRUE)
   
   par(xpd=NA)
@@ -251,24 +253,28 @@ langkat_points <- langkat_points[langkat_ranks,]
                          labs = sapply(select, function(x){paste0(x, ". ", langkat_points[x,"name"])}),
                          label_radius = 0.45,
                          centre = c(98.22, 3.55), gap = langkat_map_tweaks$gap,
-                         n_toadstools = 35, line_col = "black", lab_col = "black", lab_cex = 1.1)
+                         n_toadstools = 35, line_col="grey80", lab_col = "black", lab_cex = 1.1)
   select = c(2,3,6,7,10)
   plot_sites_radius_pusk(ranked_sites = langkat_points[select, c("lon", "lat")],
                          labs = sapply(select, function(x){paste0(x, ". ", langkat_points[x,"name"])}),
                          label_radius = langkat_map_tweaks$radius, 
                          centre = c(98.3, 3.65), gap = langkat_map_tweaks$gap,
-                         n_toadstools = 35, line_col = "black", lab_col = "black", lab_cex = 1.1)
+                         n_toadstools = 35, line_col="grey80", lab_col = "black", lab_cex = 1.1)
   points(langkat_unranked[, c("lon", "lat")], pch=4, 
-         col=ifelse(langkat_unranked$dataset == "prelim", "red", "grey70"), lwd=4)
+         #col=ifelse(langkat_unranked$dataset == "prelim", "red", "grey70"), 
+         col="grey50",
+         lwd=4)
   points(langkat_points[1:ranked, c("lon", "lat")], pch=4, 
-         col=ifelse(langkat_points$dataset[1:ranked] == "prelim", "red", "black"), lwd=4)
+         #col=ifelse(langkat_points$dataset[1:ranked] == "prelim", "red", "black"), 
+         col="red",
+         lwd=4)
   
   # add cities in ... Stabat is in the wrong place
   tmp = idn_cities[idn_cities$relevant.regency == "LANGKAT",]
   tmp = idn_cities[idn_cities$Name == "Binjai",]
   if (nrow(tmp) > 0){
-    points(tmp$lon, tmp$lat, col="blue", lwd=4)
-    text(tmp$lon, tmp$lat, labels=tmp$Name, col="blue", pos=4,
+    points(tmp$lon, tmp$lat, col="grey70", lwd=4)
+    text(tmp$lon, tmp$lat, labels=tmp$Name, col="grey70", pos=4,
          font=2,cex=1.1)
   }
   
@@ -278,7 +284,7 @@ langkat_points <- langkat_points[langkat_ranks,]
   plot(trim(mask(lulc_covs$brt_mean,
                  district_shapes[district_shapes$district_name == "MALINAU",])),
        bty="n", axes=FALSE,
-       col=viridis(ncolours), breaks=colbreaks, legend=FALSE)
+       col=rev(idem_no_grey(ncolours)), breaks=colbreaks, legend=FALSE)
   plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]), lwd=2, add=TRUE)
   
   par(xpd=NA)
@@ -286,29 +292,33 @@ langkat_points <- langkat_points[langkat_ranks,]
   plot_sites_radius_pusk(ranked_sites = malinau_points[select, c("lon", "lat")],
                          labs = sapply(select, function(x){paste0(x, ". ", malinau_points[x,"name"])}),
                          label_radius = 1.85, centre = c(116.2,2.1), gap = malinau_map_tweaks$gap,
-                         n_toadstools = 50,line_col = "black", lab_col = "black", lab_cex = 1.1)
+                         n_toadstools = 50,line_col="grey80", lab_col = "black", lab_cex = 1.1)
   select = c(5,8)
   plot_sites_radius_pusk(ranked_sites = malinau_points[select, c("lon", "lat")],
                          labs = sapply(select, function(x){paste0(x, ". ", malinau_points[x,"name"])}),
                          label_radius = 1.3, centre = c(116.2,4), gap = malinau_map_tweaks$gap,
-                         n_toadstools = malinau_map_tweaks$n_toadstools, line_col = "black", lab_col = "black",
+                         n_toadstools = malinau_map_tweaks$n_toadstools, line_col="grey80", lab_col = "black",
                          lab_cex = 1.1)
   select = c(7,9,10)
   plot_sites_radius_pusk(ranked_sites = malinau_points[select, c("lon", "lat")],
                          labs = sapply(select, function(x){paste0(x, ". ", malinau_points[x,"name"])}),
                          label_radius = 1.3, centre = c(116.4,3),
                          gap = malinau_map_tweaks$gap, n_toadstools = 30,
-                         line_col = "black", lab_col = "black", lab_cex = 1.1)
+                         line_col="grey80", lab_col = "black", lab_cex = 1.1)
   points(malinau_unranked[, c("lon", "lat")], pch=4, 
-         col=ifelse(malinau_unranked$dataset == "prelim", "red", "grey70"), lwd=4)
+         #col=ifelse(malinau_unranked$dataset == "prelim", "red", "grey70"),
+         col="grey80",
+         lwd=4)
   points(malinau_points[1:ranked, c("lon", "lat")], pch=4, 
-         col=ifelse(malinau_points$dataset[1:ranked] == "prelim", "red", "black"), lwd=4)
+         #col=ifelse(malinau_points$dataset[1:ranked] == "prelim", "red", "black"),
+         col="red",
+         lwd=4)
   
   # add cities in
   tmp = idn_cities[idn_cities$relevant.regency == "MALINAU",]
   if (nrow(tmp) > 0){
-    points(tmp$lon, tmp$lat, col="blue", lwd=4)
-    text(tmp$lon, tmp$lat, labels=tmp$Name, col="blue", pos=4,
+    points(tmp$lon, tmp$lat, col="grey70", lwd=4)
+    text(tmp$lon, tmp$lat, labels=tmp$Name, col="grey70", pos=4,
          font=2,cex=1.1)
   }
   
@@ -317,8 +327,8 @@ langkat_points <- langkat_points[langkat_ranks,]
   par(mfrow=c(1,1), new=TRUE, oma=c(0,0,0,0), mar=c(4.1,4.1,4.1,4.1))
   plot(0, type="n", axes=FALSE, xlab="", ylab="")
   plot(lulc_covs$brt_mean, legend.only=TRUE, legend.mar=5,
-       legend.args=list(text="Mean relative risk", side=2, line=1, cex=1.2, font=2),
-       col=viridis(ncolours), legend.width=1)
+       legend.args=list(text="Mean predicted relative risk", side=2, line=0.8, cex=1.2),
+       col=rev(idem_no_grey(ncolours)), legend.width=1)
   #mtext("Simple ranking in Malinau:\n 100 minute travel time catchments", font=2, cex=1.4, line=2)
   
   dev.off()}
