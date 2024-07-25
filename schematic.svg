@@ -3,8 +3,8 @@
 
 <svg
    width="133.08649mm"
-   height="108.95833mm"
-   viewBox="0 0 133.08649 108.95833"
+   height="110.18581mm"
+   viewBox="0 0 133.08649 110.18581"
    version="1.1"
    id="svg1"
    inkscape:version="1.3.2 (091e20e, 2023-11-25)"
@@ -28,7 +28,7 @@
      inkscape:document-units="mm"
      inkscape:zoom="1.7244025"
      inkscape:cx="260.09009"
-     inkscape:cy="189.34095"
+     inkscape:cy="193.98023"
      inkscape:window-width="1920"
      inkscape:window-height="1080"
      inkscape:window-x="0"
@@ -383,7 +383,7 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="raster"
-     transform="translate(-12.775802,-8.1900165)">
+     transform="translate(-12.775802,-6.9625384)">
     <rect
        style="opacity:1;fill:#f2f1f2;fill-opacity:1;stroke:#242424;stroke-width:0.245289;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
        id="rect4869-9"
@@ -493,7 +493,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-12.775802,-8.1900165)">
+     transform="translate(-12.775802,-6.9625384)">
     <rect
        style="opacity:0.4;fill:#90ee90;fill-opacity:1;stroke:#272121;stroke-width:0.0282165;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
        id="rect4853-7-8"
@@ -918,18 +918,18 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;line-height:1.25;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="77.903969"
-       y="10.760059"
+       x="78.057404"
+       y="9.5325813"
        id="text1-3-3-8"><tspan
          sodipodi:role="line"
          id="tspan256"
-         x="77.903969"
-         y="10.760059"
+         x="78.057404"
+         y="9.5325813"
          style="text-align:center;text-anchor:middle">Objective factors, </tspan><tspan
          sodipodi:role="line"
          id="tspan257"
-         x="77.903969"
-         y="15.169785"
+         x="78.057404"
+         y="13.942307"
          style="text-align:center;text-anchor:middle">e.g. model outputs</tspan></text>
     <text
        xml:space="preserve"

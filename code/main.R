@@ -57,6 +57,9 @@ source(paste0(code_path, "catchment_functions.R"))
 # need to save progress here please:
 # saveRDS(health_sites, file = "output/health_sites.rds")
 health_sites = readRDS(file = "output/health_sites.rds")
+health_points = health_sites[, c("lon","lat")]
+coordinates(health_points) <- ~ lon + lat
+proj4string(health_points) <- proj4string(idn_shp)
 
 # now for some summarisation:
 

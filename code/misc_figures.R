@@ -19,9 +19,21 @@ bg_col = "grey95"
 #"#FFF5EB" "#FEE6CE" "#FDD0A2" "#FDAE6B" "#FD8D3C" "#F16913" "#D94801" "#A63603" "#7F2704"
 #"#BC95E9"
 
+remotes::install_github("idem-lab/idpalette")
+library(idpalette)
+
 "#F16913"
 
 oranges <- brewer.pal(9, "Oranges")[3:6]
+orange_highlight <- "#F16913"#"#ff9955"
+
+iddu_no_grey <- function(n = NULL){
+  idpalette(p = "iddu", n = n+1)[1:n]
+}
+
+idem_no_grey <- function(n = NULL){
+  idpalette(p = "idem", n = n+1)[1:n]
+}
 
 {png("figures/big_map.png",
      height=2800,
@@ -47,15 +59,16 @@ plot(world_ras, col = bg_col, box=FALSE,
      #xlab = "Longitude", ylab = "Latitude",
      cex.main=1.8, cex.lab=1.3, legend=FALSE, legend.mar=0, axes=FALSE)
 par(fig=midfig, oma = c(0,0,0,0), mar=c(0,0,0,0), new=TRUE)
-plot(lulc_covs$brt_mean, col=viridis(ncolours), breaks=colbreaks,
+plot(lulc_covs$brt_mean, col=rev(idem_no_grey(ncolours)), breaks=colbreaks,
      legend.mar=0, legend=FALSE, box=FALSE, cex.axis=axcex)
 par(fig=midfig, oma = c(0,0,0,0), mar=c(0,0,0,0), new=TRUE)
-plot(st_geometry(district_shapes), col="#FD8D3C", add=TRUE, border="grey20", lwd=4)
+plot(st_geometry(district_shapes), col=alpha(orange_highlight, 0.5), add=TRUE, 
+     border=orange_highlight, lwd=4)
 mtext("Longitude", 1, cex=textcex, line=2.5)
 mtext("Latitude", 2, cex=textcex, line=2.5)
 
 par(fig=c(0.155,0.9,0.31,0.69))
-plot(lulc_covs$brt_mean, legend.only=TRUE, col=viridis(ncolours), breaks=colbreaks, 
+plot(lulc_covs$brt_mean, legend.only=TRUE, col=rev(idem_no_grey(ncolours)), breaks=colbreaks, 
      legend.shrink=0.75, legend.width=2,
      axis.args = list(at=seq(0,0.8, length.out=5), labels=seq(0,0.8, length.out=5), cex.axis=axcex),
      legend.args = list("Mean predicted relative risk", side=4, line=4, cex=textcex))
@@ -68,7 +81,7 @@ par(oma=c(0,0,0,0), mar=c(1,1,4.1,1), new=TRUE, mfrow=c(4,4), mfg=c(1,1))
 for (district in c("LANGKAT", "DAIRI", "TAPANULI TENGAH", "NUNUKAN")){
   plot(st_geometry(district_shapes[district_shapes$district_name == district,]))
   plot(trim(mask(lulc_covs$brt_mean, district_shapes[district_shapes$district_name == district,])),
-       col=viridis(ncolours), breaks=colbreaks, add=TRUE, legend=FALSE)
+       col=rev(idem_no_grey(ncolours)), breaks=colbreaks, add=TRUE, legend=FALSE)
   plot(st_geometry(district_shapes[district_shapes$district_name == district,]),
        add=TRUE, border="grey60", lwd=4)
   mtext(str_to_title(district), 3, cex=textcex, line=1.5)
@@ -79,7 +92,7 @@ par(oma=c(0,0,0,0), mar=c(4.1,1,1,1), new=TRUE, mfrow=c(4,4), mfg=c(4,1))
 for (district in c("PAKPAK BHARAT", "TAPANULI SELATAN", "MALINAU")){
   plot(st_geometry(district_shapes[district_shapes$district_name == district,]))
   plot(trim(mask(lulc_covs$brt_mean, district_shapes[district_shapes$district_name == district,])),
-       col=viridis(ncolours), breaks=colbreaks, add=TRUE, legend=FALSE)
+       col=rev(idem_no_grey(ncolours)), breaks=colbreaks, add=TRUE, legend=FALSE)
   plot(st_geometry(district_shapes[district_shapes$district_name == district,]),
        add=TRUE, border="grey60", lwd=4)
   mtext(str_to_title(district), 1, cex=textcex, line=1.5)
@@ -105,7 +118,7 @@ for (district in 1:nrow(linedf)){
     unlist()
   lines(c(linedf$x[district], ((cent[1] - midusr[1]) / (midusr[2] - midusr[1])) * (midfig[2] - midfig[1]) + midfig[1]),
         c(linedf$y[district], ((cent[2] - midusr[3]) / (midusr[4] - midusr[3])) * (midfig[4] - midfig[3]) + midfig[3]), 
-        col="grey20", lwd=3)
+        col=orange_highlight, lwd=3)
 }
 
 dev.off()}
@@ -211,6 +224,8 @@ subfigure_label <- function(lab, loc, cex=2){
        labels = lab, cex=cex)
 }
 
+
+
 {png("figures/catchment_demos.png",
      #height=2000,
      height=1200,
@@ -221,7 +236,7 @@ subfigure_label <- function(lab, loc, cex=2){
 par(mfrow=c(1,3), bty="n", mar=c(0,0,0,0), xpd=NA)
 # I've used 20km
 plot(langkat_ras, col=bg_col, legend=FALSE, axes=FALSE)
-plot(merge(langkat_eg1[[1]], langkat_eg2[[1]]), col=purps, legend=FALSE, axes=FALSE, add=TRUE)
+plot(merge(langkat_eg1[[1]], langkat_eg2[[1]]), col=rev(idem_no_grey(9)), legend=FALSE, axes=FALSE, add=TRUE)
 points(langkat_sites[c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], col="red", pch=4, lwd=point_lwd)
 par(new=TRUE)
 plot(st_geometry(district_shapes[LANGKAT,]), add=TRUE, lwd=border_lwd)
@@ -230,7 +245,7 @@ subfigure_label("(a)", c(0.1,0.9))
 # and 60 min
 plot(langkat_ras, col=bg_col, legend=FALSE, axes=FALSE)
 par(new=TRUE)
-plot(merge(langkat_eg1[[2]], langkat_eg2[[2]]), col=purps, legend=FALSE, axes=FALSE)
+plot(merge(langkat_eg1[[2]], langkat_eg2[[2]]), col=rev(idem_no_grey(9)), legend=FALSE, axes=FALSE)
 points(langkat_sites[PICK_LANGKAT1,c("lon","lat")], col="red", pch=4, lwd=point_lwd)
 par(new=TRUE)
 points(langkat_sites[PICK_LANGKAT2,c("lon","lat")], col="red", pch=4, lwd=point_lwd)
@@ -239,9 +254,9 @@ subfigure_label("(b)", c(0.1,0.9))
 
 plot(langkat_ras, col=bg_col, legend=FALSE, axes=FALSE)
 par(new=TRUE)
-plot(crop(langkat_eg1[[3]], langkat_ras), col=purps, legend=FALSE, axes=FALSE)
+plot(crop(langkat_eg1[[3]], langkat_ras), col=idem_no_grey(9), legend=FALSE, axes=FALSE)
 par(new=TRUE)
-plot(crop(langkat_eg2[[3]], langkat_ras), col=purps, legend=FALSE, axes=FALSE)
+plot(crop(langkat_eg2[[3]], langkat_ras), col=idem_no_grey(9), legend=FALSE, axes=FALSE)
 par(new=TRUE)
 plot(rasterToPolygons(stretch_langkat, dissolve=TRUE), add=TRUE, 
      border="grey50", lwd=border_lwd)
