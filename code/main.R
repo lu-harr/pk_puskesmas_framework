@@ -491,6 +491,7 @@ print(proc.time() - ptm)}
 #   rename(obj=V1, site1=V2, site2=V3, site3=V4, site4=V5, site5=V6) %>%
 #   arrange(desc(obj))
 # write.csv(langkat_obj5_dist, "output/multiple_sites/langkat_dist_5.csv", row.names=FALSE)}
+langkat_obj5_dist <- read.csv("output/multiple_sites/langkat_dist_5.csv")
 
 # {langkat_obj6_dist = combn(nrow(langkat_sites), 6, eval_network_distance, TRUE,
 #                          langkat_distance_matrix) %>%
@@ -499,7 +500,7 @@ print(proc.time() - ptm)}
 #   rename(obj=V1, site1=V2, site2=V3, site3=V4, site4=V5, site5=V6, site6=V7) %>%
 #   arrange(desc(obj))
 # write.csv(langkat_obj6_dist, "output/multiple_sites/langkat_dist_6.csv", row.names=FALSE)}
-
+langkat_obj6_dist <- read.csv("output/multiple_sites/langkat_dist_6.csv")
 
 
 

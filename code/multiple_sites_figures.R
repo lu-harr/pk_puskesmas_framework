@@ -422,7 +422,10 @@ scatter_panel <- function(x, y){
 spectral <- c('#9E0142','#D53E4F','#F46D43','#FDAE61',"#F8DA56",#"#FEFC60",#'#FEE08B',#'#FFFFBF',
               #'#E6F598',
               '#B1D668','#66C2A5','#3288BD','#5E4FA2')
+
 pal <- colorRampPalette(spectral)
+pal <- colorRampPalette(c("#D4E9F6", iddu(4)[2:4], "#F7D3E2"))
+pal <- colorRampPalette(iddu(4)[2:4])
 
 {png("figures/multiple_sites/langkat_multi_obj_two_sites.png",
     height=2300, width=2100, pointsize=35)
@@ -583,18 +586,24 @@ alllims <- data.frame(summin=c(min(langkat_obj2_sum$obj),
     pointsize=40)
 par(mfrow=c(3,3), mar=c(4.1,1.1,3.1,1.1), oma=c(0,3,0,0), xpd=NA)
 scatter_panel(sites2, main="2 sites", xlab="Network distance", ylab="Sum objective",
-              lims=c(min(alllims$distmin), max(alllims$distmax), min(alllims$summin), max(alllims$summax)))
+              lims=c(min(alllims$distmin), max(alllims$distmax), 
+                     min(alllims$summin), max(alllims$summax)))
 scatter_panel(sites3, main="3 sites", xlab="Network distance",
-              lims=c(min(alllims$distmin), max(alllims$distmax), min(alllims$summin), max(alllims$summax)))
+              lims=c(min(alllims$distmin), max(alllims$distmax), 
+                     min(alllims$summin), max(alllims$summax)))
 scatter_panel(sites4, main="4 sites", xlab="Network distance",
-              lims=c(min(alllims$distmin), max(alllims$distmax), min(alllims$summin), max(alllims$summax)))
+              lims=c(min(alllims$distmin), max(alllims$distmax), 
+                     min(alllims$summin), max(alllims$summax)))
 par(mfrow=c(3,2), mar=c(4.1,1.1,3.1,1.1), oma=c(0,12,0,9), xpd=NA, mfg=c(2,1))
 scatter_panel(sites5, main="4 sites", xlab="Network distance", ylab="Sum objective",
-              lims=c(min(alllims$distmin), max(alllims$distmax), min(alllims$summin), max(alllims$summax)))
+              lims=c(min(alllims$distmin), max(alllims$distmax), 
+                     min(alllims$summin), max(alllims$summax)))
 scatter_panel(sites6, main="5 sites", xlab="Network distance",
-              lims=c(min(alllims$distmin), max(alllims$distmax), min(alllims$summin), max(alllims$summax)))
+              lims=c(min(alllims$distmin), max(alllims$distmax), 
+                     min(alllims$summin), max(alllims$summax)))
 
 pal2 = viridis(7)[2:6]
+pal2 <- rev(idem(6))
 par(mfrow=c(6,1), xpd=FALSE, mar=c(4.1,1.1,1.1,1.1), oma=c(0,3,0,0),  mfg=c(5,1), new=TRUE)
 plot(0, xlim=c(180, max(alllims$summax)+10), ylim=c(0,1.5),
      type="n", yaxt="n", ylab="", xlab="Sum objective (maximising)", cex.lab=1.3)
@@ -605,7 +614,7 @@ for (i in 1:nrow(alllims)){
 }
 text(c(alllims$summax[1:2], alllims$summax[3]-1, alllims$summax[4], alllims$summax[5]+1), 
      c(rep(1.2, 3), 1.45, 1.2),
-     paste0(2:6, " sites"), col=viridis(7)[2:6], font=2, cex=1.3)
+     paste0(2:6, " sites"), col=pal2, font=2, cex=1.3)
 
 plot(0, xlim=rev(c(0, max(alllims$distmin)+0.05)), ylim=c(0,1.5), 
      type="n", yaxt="n", ylab="", xlab="Network distance objective (minimising)", cex.lab=1.3)
@@ -623,8 +632,6 @@ subfigure_label(par()$usr, 0.03,0.33,"(b)")
 subfigure_label(par()$usr, 0.03,0.16,"(c)")
 
 dev.off()}
-
-
 
 
 
