@@ -603,7 +603,7 @@ scatter_panel(sites6, main="5 sites", xlab="Network distance",
                      min(alllims$summin), max(alllims$summax)))
 
 pal2 = viridis(7)[2:6]
-pal2 <- rev(idem(6))
+pal2 <- rev(idem(5))
 par(mfrow=c(6,1), xpd=FALSE, mar=c(4.1,1.1,1.1,1.1), oma=c(0,3,0,0),  mfg=c(5,1), new=TRUE)
 plot(0, xlim=c(180, max(alllims$summax)+10), ylim=c(0,1.5),
      type="n", yaxt="n", ylab="", xlab="Sum objective (maximising)", cex.lab=1.3)
