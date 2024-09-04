@@ -6,6 +6,9 @@ subfigure_label = function(plot_region, x_displacement, y_displacement, label,
        label, cex=cex.label)
 }
 
+empty_plot_for_legend = function(){
+  plot(0, type="n", xaxt="n", yaxt="n", xlab="", ylab="", bty="n")
+}
 
 my_simple_dist = function(pos1, pos2){
   # this was quicker than googling it :)))

@@ -242,12 +242,13 @@ summary_xtable = function(tab,
                          caption = cap,
                          label = lab)
   
-  align(xtab) <- c("c", "C{0.05\\textwidth}", "C{0.15\\textwidth}", 
-                   rep("C{0.08\\textwidth}", 8))
+  align(xtab) <- c("c", "C{0.03\\textwidth}", "C{0.12\\textwidth}", "C{0.09\\textwidth}",
+                   rep("C{0.08\\textwidth}", 3),
+                   rep("C{0.07\\textwidth}", 4))
   
   print(xtab,
         #add.to.row = addtorow,
-        size = "\\fontsize{9pt}{10pt}\\selectfont",
+        size = "\\fontsize{8pt}{9pt}\\selectfont",
         include.rownames = FALSE,
         sanitize.text.function = function(x){x},
         hline.after = NULL)

@@ -117,7 +117,7 @@ for (district in c("PAKPAK BHARAT", "TAPANULI SELATAN", "MALINAU")){
 }
 
 par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=TRUE, mfrow=c(1,1))
-plot(0, xlim=c(0,1), ylim=c(0,1), type="n")#, axes=FALSE)
+plot(0, xlim=c(0,1), ylim=c(0,1), type="n", axes=FALSE)
 
 # lines(c(0.3, 0.3), c(midfig[3], midfig[4]), col="red", lwd=4)
 # lines(c(midfig[1], midfig[2]), c(0.3, 0.3), col="red", lwd=4)
@@ -243,7 +243,7 @@ subfigure_label <- function(lab, loc, cex=2){
        labels = lab, cex=cex)
 }
 
-
+bg_col="grey90"
 
 {png("figures/catchment_demos.png",
      #height=2000,
@@ -256,7 +256,7 @@ par(mfrow=c(1,3), bty="n", mar=c(0,0,0,0), xpd=NA)
 # I've used 20km
 plot(langkat_ras, col=bg_col, legend=FALSE, axes=FALSE)
 plot(merge(langkat_eg1[[1]], langkat_eg2[[1]]), col=purps(9), legend=FALSE, axes=FALSE, add=TRUE)
-points(langkat_sites[c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], col="orange", pch=4, lwd=point_lwd)
+points(langkat_sites[c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], col=orange_highlight, pch=4, lwd=point_lwd)
 par(new=TRUE)
 plot(st_geometry(district_shapes[LANGKAT,]), add=TRUE, lwd=border_lwd)
 subfigure_label("(a)", c(0.1,0.9))
@@ -265,22 +265,22 @@ subfigure_label("(a)", c(0.1,0.9))
 plot(langkat_ras, col=bg_col, legend=FALSE, axes=FALSE)
 par(new=TRUE)
 plot(merge(langkat_eg1[[2]], langkat_eg2[[2]]), col=purps(9), legend=FALSE, axes=FALSE)
-points(langkat_sites[PICK_LANGKAT1,c("lon","lat")], col="orange", pch=4, lwd=point_lwd)
+points(langkat_sites[PICK_LANGKAT1,c("lon","lat")], col=orange_highlight, pch=4, lwd=point_lwd)
 par(new=TRUE)
-points(langkat_sites[PICK_LANGKAT2,c("lon","lat")], col="orange", pch=4, lwd=point_lwd)
+points(langkat_sites[PICK_LANGKAT2,c("lon","lat")], col=orange_highlight, pch=4, lwd=point_lwd)
 plot(st_geometry(district_shapes[LANGKAT,]), add=TRUE, lwd=border_lwd)
 subfigure_label("(b)", c(0.1,0.9))
 
 plot(langkat_ras, col=bg_col, legend=FALSE, axes=FALSE)
 par(new=TRUE)
-plot(crop(langkat_eg1[[3]], langkat_ras), col=purps(10)[5], legend=FALSE, axes=FALSE)
+plot(crop(langkat_eg1[[3]], langkat_ras), col=purps(10)[3], legend=FALSE, axes=FALSE)
 par(new=TRUE)
-plot(crop(langkat_eg2[[3]], langkat_ras), col=purps(10)[5], legend=FALSE, axes=FALSE)
+plot(crop(langkat_eg2[[3]], langkat_ras), col=purps(10)[3], legend=FALSE, axes=FALSE)
 par(new=TRUE)
 plot(rasterToPolygons(stretch_langkat, dissolve=TRUE), add=TRUE, 
      border="grey50", lwd=border_lwd)
 points(langkat_sites[-c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], pch=4, lwd=point_lwd)
-points(langkat_sites[c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], col="orange", pch=4, lwd=point_lwd)
+points(langkat_sites[c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], col=orange_highlight, pch=4, lwd=point_lwd)
 plot(st_geometry(district_shapes[LANGKAT,]), add=TRUE, lwd=border_lwd)
 subfigure_label("(c)", c(0.1,0.9))
 

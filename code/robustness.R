@@ -31,15 +31,15 @@ coordinates(all_points) <- ~ lon + lat
 proj4string(all_points) <- proj4string(idn_shp)
 
 # find catchments for them all
-all_sites$dist_catch = apply(all_sites, 1,
-                              getDistanceCatchment,
-                              radius_m=30000, ras=lulc_covs$objective)
-all_sites$time_catch = sapply(1:nrow(all_sites), getTimeCatchment,
-                               points=all_points,
-                               transition_surfaces=transition_surfaces,
-                               island_groups=all_sites$island_group,
-                               to_surface=lulc_covs$objective,
-                               time_cap=100)
+# all_sites$dist_catch = apply(all_sites, 1,
+#                               getDistanceCatchment,
+#                               radius_m=30000, ras=lulc_covs$objective)
+# all_sites$time_catch = sapply(1:nrow(all_sites), getTimeCatchment,
+#                                points=all_points,
+#                                transition_surfaces=transition_surfaces,
+#                                island_groups=all_sites$island_group,
+#                                to_surface=lulc_covs$objective,
+#                                time_cap=100)
 
 # save our work!
 # saveRDS(all_sites, file="output/peripheral_sites.rds")
@@ -119,7 +119,8 @@ site_range_plot3 = function(health_sel_sites, # relevant rows from health_sites
   maxx = max(unlist(periph_sel_sites), na.rm=TRUE)
   
   # Main plot at left
-  par(mar=c(5.1,10.1,4.1,2.1), fig=c(0,0.85,0,1))
+  mar = c(5.1,10.1,1.1,2.1)
+  par(mar=mar, fig=c(0,0.85,0,1))
   plot(0,0,
        ylim=c(1, nrow(health_sel_sites)), 
        xlim=c(minx, maxx),
@@ -145,7 +146,8 @@ site_range_plot3 = function(health_sel_sites, # relevant rows from health_sites
   mtext("Site name", 2, line=8.5, cex=1.5)
   
   # Insert barplot
-  par(mar=c(5.1,4.1,4.1,2.1), fig=c(0.71,0.97,0,1), new=TRUE, xpd=TRUE)
+  mar[2] = mar[2] - 6
+  par(mar=mar, fig=c(0.71,0.97,0,1), new=TRUE, xpd=TRUE)
   mp = barplot(unlist(central_catch_size), horiz=TRUE, col="grey90", 
                ylim=c(0.5, nrow(health_sel_sites)-0.5), space=0,
                xlab="", axes = FALSE)
@@ -158,7 +160,7 @@ districts = c("LANGKAT", "MALINAU")
 for (district in 1:2){
   png(paste0("figures/adjacent_sites/adjacent_", tolower(districts[district]),"_dist.png"),
       width = 2000,
-      height = c(1900,1500)[district],
+      height = c(1800,1500)[district],
       pointsize = 40)
   site_range_plot3(health_sel_sites = health_sites[health_sites$regency == districts[district],], 
                    periph_sites_df = periph_dist_agg[health_sites$regency == districts[district],],
@@ -170,11 +172,14 @@ for (district in 1:2){
 for (district in 1:2){
   png(paste0("figures/adjacent_sites/adjacent_", tolower(districts[district]),"_time.png"),
       width = 2000,
-      height = c(1900,1500)[district],
+      height = c(1800,1500)[district],
       pointsize = 40)
   site_range_plot3(health_sel_sites = health_sites[health_sites$regency == districts[district],], 
                    periph_sites_df = periph_time_agg[health_sites$regency == districts[district],],
                    "")#paste0(str_to_title(districts[district]), " - Travel time catchments"))
+  par(mar=c(0,0,0,0), oma=c(0,0,0,0), mfrow=c(1,1), new=TRUE)
+  empty_plot_for_legend()
+  subfigure_label(par()$usr, 0.02,0.95,"(a)",cex.label = 1.2)
   dev.off()
 }
 

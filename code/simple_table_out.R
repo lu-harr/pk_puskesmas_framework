@@ -244,7 +244,7 @@ langkat_points <- langkat_points[langkat_ranks,]
   plot(trim(mask(lulc_covs$brt_mean,
                  district_shapes[district_shapes$district_name == "LANGKAT",])),
        bty="n", axes=FALSE,
-       col=rev(idem_no_grey(ncolours)), breaks=colbreaks, legend=FALSE)
+       col=purps(ncolours), breaks=colbreaks, legend=FALSE)
   plot(st_geometry(district_shapes[district_shapes$district_name == "LANGKAT",]), lwd=2, add=TRUE)
   
   par(xpd=NA)
@@ -261,12 +261,12 @@ langkat_points <- langkat_points[langkat_ranks,]
                          centre = c(98.3, 3.65), gap = langkat_map_tweaks$gap,
                          n_toadstools = 35, line_col="grey80", lab_col = "black", lab_cex = 1.1)
   points(langkat_unranked[, c("lon", "lat")], pch=4, 
-         #col=ifelse(langkat_unranked$dataset == "prelim", "red", "grey70"), 
+         #col=ifelse(langkat_unranked$dataset == "prelim", "orange", "grey70"), 
          col="grey50",
          lwd=4)
   points(langkat_points[1:ranked, c("lon", "lat")], pch=4, 
-         #col=ifelse(langkat_points$dataset[1:ranked] == "prelim", "red", "black"), 
-         col="red",
+         #col=ifelse(langkat_points$dataset[1:ranked] == "prelim", "orange", "black"), 
+         col="orange",
          lwd=4)
   
   # add cities in ... Stabat is in the wrong place
@@ -284,7 +284,7 @@ langkat_points <- langkat_points[langkat_ranks,]
   plot(trim(mask(lulc_covs$brt_mean,
                  district_shapes[district_shapes$district_name == "MALINAU",])),
        bty="n", axes=FALSE,
-       col=rev(idem_no_grey(ncolours)), breaks=colbreaks, legend=FALSE)
+       col=purps(ncolours), breaks=colbreaks, legend=FALSE)
   plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]), lwd=2, add=TRUE)
   
   par(xpd=NA)
@@ -306,12 +306,12 @@ langkat_points <- langkat_points[langkat_ranks,]
                          gap = malinau_map_tweaks$gap, n_toadstools = 30,
                          line_col="grey80", lab_col = "black", lab_cex = 1.1)
   points(malinau_unranked[, c("lon", "lat")], pch=4, 
-         #col=ifelse(malinau_unranked$dataset == "prelim", "red", "grey70"),
+         #col=ifelse(malinau_unranked$dataset == "prelim", "orange", "grey70"),
          col="grey80",
          lwd=4)
   points(malinau_points[1:ranked, c("lon", "lat")], pch=4, 
-         #col=ifelse(malinau_points$dataset[1:ranked] == "prelim", "red", "black"),
-         col="red",
+         #col=ifelse(malinau_points$dataset[1:ranked] == "prelim", "orange", "black"),
+         col="orange",
          lwd=4)
   
   # add cities in
@@ -328,7 +328,7 @@ langkat_points <- langkat_points[langkat_ranks,]
   plot(0, type="n", axes=FALSE, xlab="", ylab="")
   plot(lulc_covs$brt_mean, legend.only=TRUE, legend.mar=5,
        legend.args=list(text="Mean predicted relative risk", side=2, line=0.8, cex=1.2),
-       col=rev(idem_no_grey(ncolours)), legend.width=1)
+       col=purps(ncolours), legend.width=1)
   #mtext("Simple ranking in Malinau:\n 100 minute travel time catchments", font=2, cex=1.4, line=2)
   
   dev.off()}

@@ -69,6 +69,19 @@ land_use_crits = quantile(lulc_covs, probs=c(0,0.1,0.5,0.9,1))[land_use_names, 2
 land_use_crits[3] = 1
 # still using 10% quantile for human pop but given the spread of hpop values .. I'm happy with that
 
+# these maps might be worth putting somewhere ....
+plot(lulc_covs$human_pop > land_use_crits[1])
+plot(lulc_covs$croplands > land_use_crits[2])
+plot(lulc_covs$oil_palm > land_use_crits[3])
+plot(lulc_covs$loss_year > land_use_crits[4])
+tmp <- lulc_covs$oil_palm
+tmp[tmp > 1] = NA
+tmp[tmp == 0] = NA
+plot(tmp)
+# there's a really freakin weird shape happening here
+# there shouldn't be any floats in here ... it should be modes
+# yeah I don't think resampling worked how I thought it was working because I'm seeing a lot of floats
+
 # might be sensible to check all sites are actually on land?
 check_empty_catches <- lapply(health_sites$time_catch, 
                               function(x){
@@ -113,7 +126,7 @@ tmp_dist_summ = cbind(health_sites$name,
                       ecotype_agg, 
                       dist_catch_summary[, 9:12], # max hpop, croplands, oil palm, loss year
                       dist_catch_summary[,5]) # hpop
-names(tmp_dist_summ) = c("Name", "No' Pixels", "Objective Mean", "Objective Std Dev", 
+names(tmp_dist_summ) = c("Name", "Catchment Size", "Objective Mean", "Objective Std Dev", 
                          "Eco-constraints  Present",  "Human Pop", "Croplands", "Oil Palm","Forest Loss", 
                          "Pop Discard")
 
@@ -124,7 +137,7 @@ tmp_time_summ = cbind(health_sites$name,
                       ecotype_agg, 
                       time_catch_summary[, 9:12], 
                       time_catch_summary[,5])
-names(tmp_time_summ) = c("Name", "No' Pixels", "Objective Mean", "Objective Std Dev", 
+names(tmp_time_summ) = c("Name", "Catchment Size", "Objective Mean", "Objective Std Dev", 
                          "Eco-constraints  Present",  "Human Pop", "Croplands", 
                          "Oil Palm","Forest Loss", "Pop Discard")
 
@@ -135,7 +148,7 @@ tmp_stretch_summ = cbind(health_sites$name,
                       ecotype_agg, 
                       stretch_catch_summary[, 9:12], 
                       stretch_catch_summary[,5])
-names(tmp_stretch_summ) = c("Name", "No' Pixels", "Objective Mean", "Objective Std Dev", 
+names(tmp_stretch_summ) = c("Name", "Catchment Size", "Objective Mean", "Objective Std Dev", 
                          "Eco-constraints  Present",  "Human Pop", "Croplands", 
                          "Oil Palm","Forest Loss", "Pop Discard")
 
