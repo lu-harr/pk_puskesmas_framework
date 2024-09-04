@@ -6,7 +6,12 @@ library(wesanderson)
 # fix colour palette - purps is too grey (or change background to not be grey)
 
 purps = c("#F0E6FC","#DAC7EE","#BC95E9","#B582EE","#9C59E5","#6711D1")
-purps = brewer.pal(9,"Purples")
+# from multicrit paper:
+purps = brewer.pal(9, "Purples")
+darkpurp = rgb(colorRamp(c(purps[9], "black"))(0.9)/100)
+purps = colorRampPalette(c(purps[2], purps[9]))(9)
+purps = colorRampPalette(c(purps))#, darkpurp))
+
 bg_col = "grey95"
 # The trouble with these purps is there's some grey lookin things that are hard to distinguish from bg ..
 
@@ -35,8 +40,12 @@ idem_no_grey <- function(n = NULL){
   idpalette(p = "idem", n = n+1)[1:n]
 }
 
+brt_out <- stack("~/Desktop/knowlesi/pilot_sites/data/brt_output/out_pred_brick_final.grd") %>%
+  #addLayer("~/Desktop/knowlesi/pilot_sites/data/brt_output/pred_var_fixed.tif") %>%
+  crop(lulc_covs)
+
 {png("figures/big_map.png",
-     height=2800,
+     height=3000,
      width=3000,
      pointsize=30)
 bg_col = "grey85"  
@@ -52,23 +61,32 @@ colbreaks <- seq(minValue(lulc_covs$brt_mean), maxValue(lulc_covs$brt_mean),
                  length.out=ncolours + 1)
 colbreaks[length(colbreaks)] <- colbreaks[length(colbreaks)] + 1e-7
 
-par(fig=midfig, oma = c(0,0,0,0), mar=c(0,0,0,0))
-
-plot(world_ras, col = bg_col, box=FALSE,
+oma=c(25,4,25,10)
+par(oma = oma, mar=c(0,0,0,0))
+plot(brt_out$mean, col = colorRampPalette(brewer.pal(9,"Greys"))(100)[1:60], #box=FALSE,
      #main = "Study area: Selected districts in Indonesia",
      #xlab = "Longitude", ylab = "Latitude",
-     cex.main=1.8, cex.lab=1.3, legend=FALSE, legend.mar=0, axes=FALSE)
-par(fig=midfig, oma = c(0,0,0,0), mar=c(0,0,0,0), new=TRUE)
-plot(lulc_covs$brt_mean, col=rev(idem_no_grey(ncolours)), breaks=colbreaks,
-     legend.mar=0, legend=FALSE, box=FALSE, cex.axis=axcex)
-par(fig=midfig, oma = c(0,0,0,0), mar=c(0,0,0,0), new=TRUE)
+     cex.main=1.8, cex.lab=1.3, 
+     legend=FALSE, 
+     legend.mar=0, axes=FALSE,
+     xlim=extent(lulc_covs)[1:2],
+     ylim=extent(lulc_covs)[3:4])
+
+par(oma = oma, mar=c(0,0,0,0), new=TRUE)
+plot(lulc_covs$brt_mean, col=purps(ncolours), breaks=colbreaks,
+     legend.mar=0, legend=FALSE, box=FALSE, cex.axis=axcex,
+     xlim=extent(lulc_covs)[1:2],
+     ylim=extent(lulc_covs)[3:4])
+
+#plot(idn_shp, add=TRUE)
 plot(st_geometry(district_shapes), col=alpha(orange_highlight, 0.5), add=TRUE, 
      border=orange_highlight, lwd=4)
 mtext("Longitude", 1, cex=textcex, line=2.5)
 mtext("Latitude", 2, cex=textcex, line=2.5)
 
-par(fig=c(0.155,0.9,0.31,0.69))
-plot(lulc_covs$brt_mean, legend.only=TRUE, col=rev(idem_no_grey(ncolours)), breaks=colbreaks, 
+oma[4] <- oma[4] - 6
+par(oma = oma, mar=c(0,0,0,0), new=TRUE)
+plot(lulc_covs$brt_mean, legend.only=TRUE, col=purps(ncolours), breaks=colbreaks, 
      legend.shrink=0.75, legend.width=2,
      axis.args = list(at=seq(0,0.8, length.out=5), labels=seq(0,0.8, length.out=5), cex.axis=axcex),
      legend.args = list("Mean predicted relative risk", side=4, line=4, cex=textcex))
@@ -81,7 +99,7 @@ par(oma=c(0,0,0,0), mar=c(1,1,4.1,1), new=TRUE, mfrow=c(4,4), mfg=c(1,1))
 for (district in c("LANGKAT", "DAIRI", "TAPANULI TENGAH", "NUNUKAN")){
   plot(st_geometry(district_shapes[district_shapes$district_name == district,]))
   plot(trim(mask(lulc_covs$brt_mean, district_shapes[district_shapes$district_name == district,])),
-       col=rev(idem_no_grey(ncolours)), breaks=colbreaks, add=TRUE, legend=FALSE)
+       col=purps(ncolours), breaks=colbreaks, add=TRUE, legend=FALSE)
   plot(st_geometry(district_shapes[district_shapes$district_name == district,]),
        add=TRUE, border="grey60", lwd=4)
   mtext(str_to_title(district), 3, cex=textcex, line=1.5)
@@ -92,21 +110,21 @@ par(oma=c(0,0,0,0), mar=c(4.1,1,1,1), new=TRUE, mfrow=c(4,4), mfg=c(4,1))
 for (district in c("PAKPAK BHARAT", "TAPANULI SELATAN", "MALINAU")){
   plot(st_geometry(district_shapes[district_shapes$district_name == district,]))
   plot(trim(mask(lulc_covs$brt_mean, district_shapes[district_shapes$district_name == district,])),
-       col=rev(idem_no_grey(ncolours)), breaks=colbreaks, add=TRUE, legend=FALSE)
+       col=purps(ncolours), breaks=colbreaks, add=TRUE, legend=FALSE)
   plot(st_geometry(district_shapes[district_shapes$district_name == district,]),
        add=TRUE, border="grey60", lwd=4)
   mtext(str_to_title(district), 1, cex=textcex, line=1.5)
 }
 
 par(oma=c(0,0,0,0), mar=c(0,0,0,0), new=TRUE, mfrow=c(1,1))
-plot(0, xlim=c(0,1), ylim=c(0,1), type="n", axes=FALSE)
+plot(0, xlim=c(0,1), ylim=c(0,1), type="n")#, axes=FALSE)
 
 # lines(c(0.3, 0.3), c(midfig[3], midfig[4]), col="red", lwd=4)
 # lines(c(midfig[1], midfig[2]), c(0.3, 0.3), col="red", lwd=4)
 
 # readjust margins because raster::plot() refuses to stay in its lane >:(
-midfig <- c(0.13, 0.867, 0.295, 0.704)
-
+midfig <- c(0.01, 0.905, 0.285, 0.715)
+# use these lines to check things line up lmao:
 # lines(c(0.2, 0.2), c(midfig[3], midfig[4]), col="blue", lwd=4)
 # lines(c(midfig[1], midfig[2]), c(0.28, 0.28), col="blue", lwd=4)
 
@@ -157,6 +175,8 @@ langkat_sites <- health_sites[which(health_sites$regency == "LANGKAT"),]
 stretch_langkat <- calc(stack(lon_langkat, lat_langkat), 
                    fun = function(x){which_min_euclid_distance(x[1], x[2],
                                                                langkat_sites[,c("lon","lat")])})
+
+message("Make sure you've read in health_sites :)")
 # cheating a bit here, as per usual
 PICK_LANGKAT1 = 5
 ind = which(langkat_sites[PICK_LANGKAT1, "name"] == health_sites$name)
@@ -179,39 +199,38 @@ langkat_eg2 <- list(getDistCatchUnmasked(langkat_sites[PICK_LANGKAT2,], 20000,
                                      crop(langkat_ras),
                    langkat_sites$stretch_catch[[PICK_LANGKAT2]])
 
-# remove Bulungan
-malinau_ras <- lulc_covs$human_pop %>%
-  mask(district_shapes[MALINAU,]) %>%
-  trim(padding=8)
-# get rid of Pulau Sapi also ...
-lat_malinau <- mask(init(malinau_ras, "y"), malinau_ras)
-lon_malinau <- mask(init(malinau_ras, "x"), malinau_ras)
-malinau_sites <- health_sites[which(health_sites$regency == "MALINAU"),]
-
-# this ends up being malinau + bulungan ...
-# decide later what I want to do about that
-stretch_malinau <- calc(stack(lon_malinau, lat_malinau), 
-                        fun = function(x){which_min_euclid_distance(x[1], x[2],
-                                                                    malinau_sites[,c("lon","lat")])})
-
-PICK_MALINAU1 = 6
-ind = which(malinau_sites[PICK_MALINAU1, "name"] == health_sites$name)
-malinau_eg1 <- list(getDistCatchUnmasked(malinau_sites[PICK_MALINAU1,], 20000,
-                                        malinau_ras),
-                   getTimeCatchment(ind, health_points, transition_surfaces,
-                                    health_sites$island_group, lulc_covs$objective,
-                                    60, remask=FALSE),
-                   malinau_sites$stretch_catch[[PICK_MALINAU1]])
-
-# there is something wrong with this ...
-PICK_MALINAU2 = 1
-ind = which(malinau_sites[PICK_MALINAU2, "name"] == health_sites$name)
-malinau_eg2 <- list(getDistCatchUnmasked(malinau_sites[PICK_MALINAU2,], 20000,
-                                         malinau_ras),
-                    getTimeCatchment(ind, health_points, transition_surfaces,
-                                     health_sites$island_group, lulc_covs$objective,
-                                     100, remask=FALSE),
-                    malinau_sites$stretch_catch[[PICK_MALINAU2]])
+# # remove Bulungan
+# malinau_ras <- lulc_covs$human_pop %>%
+#   mask(district_shapes[MALINAU,]) %>%
+#   trim(padding=8)
+# # get rid of Pulau Sapi also ...
+# lat_malinau <- mask(init(malinau_ras, "y"), malinau_ras)
+# lon_malinau <- mask(init(malinau_ras, "x"), malinau_ras)
+# malinau_sites <- health_sites[which(health_sites$regency == "MALINAU"),]
+# 
+# # this ends up being malinau + bulungan ...
+# # decide later what I want to do about that
+# stretch_malinau <- calc(stack(lon_malinau, lat_malinau),
+#                         fun = function(x){which_min_euclid_distance(x[1], x[2],
+#                                                                     malinau_sites[,c("lon","lat")])})
+# PICK_MALINAU1 = 6
+# ind = which(malinau_sites[PICK_MALINAU1, "name"] == health_sites$name)
+# malinau_eg1 <- list(getDistCatchUnmasked(malinau_sites[PICK_MALINAU1,], 20000,
+#                                         malinau_ras),
+#                    getTimeCatchment(ind, health_points, transition_surfaces,
+#                                     health_sites$island_group, lulc_covs$objective,
+#                                     60, remask=FALSE),
+#                    malinau_sites$stretch_catch[[PICK_MALINAU1]])
+# 
+# 
+# PICK_MALINAU2 = 1
+# ind = which(malinau_sites[PICK_MALINAU2, "name"] == health_sites$name)
+# malinau_eg2 <- list(getDistCatchUnmasked(malinau_sites[PICK_MALINAU2,], 20000,
+#                                          malinau_ras),
+#                     getTimeCatchment(ind, health_points, transition_surfaces,
+#                                      health_sites$island_group, lulc_covs$objective,
+#                                      100, remask=FALSE),
+#                     malinau_sites$stretch_catch[[PICK_MALINAU2]])
 
 
 point_lwd = 5
@@ -236,8 +255,8 @@ subfigure_label <- function(lab, loc, cex=2){
 par(mfrow=c(1,3), bty="n", mar=c(0,0,0,0), xpd=NA)
 # I've used 20km
 plot(langkat_ras, col=bg_col, legend=FALSE, axes=FALSE)
-plot(merge(langkat_eg1[[1]], langkat_eg2[[1]]), col=rev(idem_no_grey(9)), legend=FALSE, axes=FALSE, add=TRUE)
-points(langkat_sites[c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], col="red", pch=4, lwd=point_lwd)
+plot(merge(langkat_eg1[[1]], langkat_eg2[[1]]), col=purps(9), legend=FALSE, axes=FALSE, add=TRUE)
+points(langkat_sites[c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], col="orange", pch=4, lwd=point_lwd)
 par(new=TRUE)
 plot(st_geometry(district_shapes[LANGKAT,]), add=TRUE, lwd=border_lwd)
 subfigure_label("(a)", c(0.1,0.9))
@@ -245,23 +264,23 @@ subfigure_label("(a)", c(0.1,0.9))
 # and 60 min
 plot(langkat_ras, col=bg_col, legend=FALSE, axes=FALSE)
 par(new=TRUE)
-plot(merge(langkat_eg1[[2]], langkat_eg2[[2]]), col=rev(idem_no_grey(9)), legend=FALSE, axes=FALSE)
-points(langkat_sites[PICK_LANGKAT1,c("lon","lat")], col="red", pch=4, lwd=point_lwd)
+plot(merge(langkat_eg1[[2]], langkat_eg2[[2]]), col=purps(9), legend=FALSE, axes=FALSE)
+points(langkat_sites[PICK_LANGKAT1,c("lon","lat")], col="orange", pch=4, lwd=point_lwd)
 par(new=TRUE)
-points(langkat_sites[PICK_LANGKAT2,c("lon","lat")], col="red", pch=4, lwd=point_lwd)
+points(langkat_sites[PICK_LANGKAT2,c("lon","lat")], col="orange", pch=4, lwd=point_lwd)
 plot(st_geometry(district_shapes[LANGKAT,]), add=TRUE, lwd=border_lwd)
 subfigure_label("(b)", c(0.1,0.9))
 
 plot(langkat_ras, col=bg_col, legend=FALSE, axes=FALSE)
 par(new=TRUE)
-plot(crop(langkat_eg1[[3]], langkat_ras), col=idem_no_grey(9), legend=FALSE, axes=FALSE)
+plot(crop(langkat_eg1[[3]], langkat_ras), col=purps(10)[5], legend=FALSE, axes=FALSE)
 par(new=TRUE)
-plot(crop(langkat_eg2[[3]], langkat_ras), col=idem_no_grey(9), legend=FALSE, axes=FALSE)
+plot(crop(langkat_eg2[[3]], langkat_ras), col=purps(10)[5], legend=FALSE, axes=FALSE)
 par(new=TRUE)
 plot(rasterToPolygons(stretch_langkat, dissolve=TRUE), add=TRUE, 
      border="grey50", lwd=border_lwd)
 points(langkat_sites[-c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], pch=4, lwd=point_lwd)
-points(langkat_sites[c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], col="red", pch=4, lwd=point_lwd)
+points(langkat_sites[c(PICK_LANGKAT1, PICK_LANGKAT2),c("lon","lat")], col="orange", pch=4, lwd=point_lwd)
 plot(st_geometry(district_shapes[LANGKAT,]), add=TRUE, lwd=border_lwd)
 subfigure_label("(c)", c(0.1,0.9))
 

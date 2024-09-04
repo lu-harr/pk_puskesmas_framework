@@ -2,6 +2,12 @@
 # pretty sure it was the original model covariates
 lulc_covs <- stack("data/lulc_covs.grd")
 
+# brt_out <- stack("~/Desktop/knowlesi/pilot_sites/data/brt_output/out_pred_brick_final.grd") %>%
+#   #addLayer("~/Desktop/knowlesi/pilot_sites/data/brt_output/pred_var_fixed.tif") %>%
+#   crop(lulc_covs)
+# brt_out$sd <- sqrt(brt_out$var)
+
+
 #####################################################
 world_ras = st_read("~/Desktop/knowlesi/data/raw/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>%
   filter(NAME %in% c("Singapore","Thailand", "Indonesia",
