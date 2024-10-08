@@ -1,40 +1,34 @@
-## Selecting primary healthcare centres for surveillance of *Plasmodium knowlesi* malaria using geospatial models
+## Selecting primary healthcare centres for surveillance of *Plasmodium knowlesi* malaria
 
-Code repo attached to draft thesis chapter / paper
+Welcome to the repo for the fourth chapter of my thesis, *Using geospatial models to 
+select primary healthcare centres for surveillance of *Plasmodium knowlesi* malaria*
 
-### TODO
-  - STOP MESSING AROUND! SORT YOUR GIS OUT! THIS IS GETTING SILLY!
-    - Remove danylo_masked from git and put it somewhere else ... or split it up
-  - mask lulc_covs to sumatra/kalimantan only?
-  - store info on duplicated sites somewhere
-  - go through *all* the sites and check their coords ffs
-  - write this so I'm grabbing health_sites directly from moh dataset, and prelim sites
-  - chuck districts shp into repo or grab from MAP pkg
-  - check `objective` is definitely Tobin 2024
-    - mask out non-Kalimantan/Sumatra pix in lulc_covs? 
-    - Grab back Malaysian Borneo pixels for edge effects if they exist somewhere?
-    - basically just check all the masks match
-  - re-landing step isn't quite right ....
-  - check crazy hard-coded threshold in catchment summary
-  - check somewhere that I'm only including travel time catchments with at least one pixel in them
-  - get travel time catchments to be contiguous!
-  - ~am now thinking that I would prefer xtable to kable? idk? give it a squizz?~
-    - ~recolour ecoconstraints column~ :)
-  - ~tables need labels! Organise by district instead of catchment type!~
-  - Perhaps there should be a shiny app for navigating all the darn outputs?
-  - Are Malaysian Borneo pixels included in catchments??
+In the `/code/` repository, you will find:
+
+- `main.R`: reads in packages and sources other scripts, including:
+  
+    - `plot_functions.R`: a series of functions to simplify plotting
     
-#### FIGURES
-  - ~DONE map: superimpose districts masked over predicted risk~
-    - make orange all the same, lines wider
-  - ~DONE catchment demos~
-  - objective surfaces in key districts?
-  - supp: forest fringe/oil palm calculation figures
-  - supp: dominant land cover?
-  - ~DONE supp: tables~
-  - ~DONE supp: maps with labelled ranked sites~
-  - multiple site selection
-  - multiple objective selection ? Left panel: geographic space, combinations of sites on front, right panel: objective space, with front, and enumerated objectives for all sampling designs
-  - supp: sensitivity to catchment definition: raw/ranked for travel time/distance
-  - supp: sensitivity to site location: for travel time only, wrt ranking table in main text
-  - supp: maps of "closest-point" catchments for all districts
+    - `sort_gis.R`: a script for reading in and organising data
+    
+    - `format_site_names.R`: cleans up healthcare site names
+    
+    - `thin_duplicate_sites.R`: checks for overlaps in the healthcare site dataset, 
+    with respect to the raster dataset used in downstream analysis
+    
+    - `catchment_functions.R`: three functions to calculate three different types of catchments,
+    provided with rasters and site locations (and distance/time limits)
+    
+    - `table_functions.R`: cubby hole for table summarisation code (to get things into xtable, etc)
+    
+    otherwise, all analysis steps are in the body of `main.R`
+    
+- `simple_table_out.R`: writes tabular outputs to `.tex`
+  
+- `robustness.R` and `catchment_limit_sensitivity.R`: catchment limit 
+and site location sensitivity outputs
+
+- `multiple_sites_figures.R`: code for latter figures in chapter
+
+- `misc_figures.R`: other figures (e.g. `catchment_demos.png`) and supps
+
