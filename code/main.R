@@ -11,6 +11,10 @@ library(RColorBrewer)
 library(dplyr)
 library(stringr)
 library(kableExtra)
+library(malariaAtlas)
+# library(seegSDM) # darn it I'm no longer compatible with rgeos and rgdal
+library(geosphere)
+library(tidyverse)
 
 source("code/plot_functions.R")
 
@@ -33,7 +37,9 @@ source(paste0(code_path, "thin_duplicate_sites.R"))
 # some coordinates are corrected in script
 # should just put corrections into the original dataset :)
 
+# malariaAtlas has been updated since we last had a chat >:)
 source(paste0(code_path, "catchment_functions.R"))
+# not willing to properly test this this arvo
 
 # health_sites$dist_catch = apply(health_sites, 1,
 #                                 getDistanceCatchment,
@@ -59,7 +65,7 @@ source(paste0(code_path, "catchment_functions.R"))
 health_sites = readRDS(file = "output/health_sites.rds")
 health_points = health_sites[, c("lon","lat")]
 coordinates(health_points) <- ~ lon + lat
-proj4string(health_points) <- proj4string(idn_shp)
+proj4string(health_points) <- proj4string(idn_shp) # this is broken atm but as I'm not calculating catchments I can live with it
 
 # now for some summarisation:
 

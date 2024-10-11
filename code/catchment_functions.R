@@ -53,7 +53,8 @@ getRasterWrap = function(shp){
   # function computes transition surface for ith entry in list of shps
   friction = malariaAtlas::getRaster(
     surface = "A global friction surface enumerating land-based travel speed for a nominal year 2015", 
-    shp = shp)
+    shp = shp) %>%
+    raster() # getRaster has transitioned to giving us spatRasters; gdistance::transition() ain't ready for that nonsense
   Tr <- gdistance::transition(friction, function(x) 1/mean(x), 8)
   T.GC <- gdistance::geoCorrection(Tr)
   
@@ -86,7 +87,7 @@ getTimeCatchment = function(index, points, transition_surfaces, island_groups,
 # get our health site location data ready
 health_points = health_sites[, c("lon","lat")]
 coordinates(health_points) <- ~ lon + lat
-proj4string(health_points) <- proj4string(idn_shp)
+# proj4string(health_points) <- proj4string(idn_shp) # can I just kill this?
 health_sites$island_group = ifelse(health_sites$regency %in% c("MALINAU", "NUNUKAN"), "kalimantan", "sumatera")
 
 # For example:
