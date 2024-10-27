@@ -23,7 +23,7 @@ In the `/code/` repository, you will find:
     
     otherwise, all analysis steps are in the body of `main.R`
     
-- `simple_table_out.R`: writes tabular outputs to `.tex`
+- `simple_table_out.R`: writes tabular outputs to `.tex` (Malinau/Langkat simple ranking figure code is in here)
   
 - `robustness.R` and `catchment_limit_sensitivity.R`: catchment limit 
 and site location sensitivity outputs

@@ -443,7 +443,7 @@ pal <- viridis(100)[seq(25,93,length.out=nrow(select_objs))]
   })
   
   par(xpd=TRUE)
-  subfigure_label(par()$usr, -0.1, 1.1, "(b)", cex.label = 1.4)
+  subfigure_label(par()$usr, -0.1, 1.1, "(a)", cex.label = 1.5)
   par(xpd=FALSE)
   
   
@@ -466,7 +466,7 @@ pal <- viridis(100)[seq(25,93,length.out=nrow(select_objs))]
   })
   
   par(xpd=TRUE)
-  subfigure_label(par()$usr, -0.1, 1.1, "(c)", cex.label = 1.4)
+  subfigure_label(par()$usr, -0.1, 1.1, "(b)", cex.label = 1.5)
   par(xpd=FALSE)
   
   
@@ -482,8 +482,8 @@ select_objs = time_mean_objs[which(health_sites$regency == "MALINAU"),
 select_ranks = apply(select_objs, 2, function(x){rank(-x)})
 #select_ranks[which(select_objs == 0)] = 0
 select_ranks[which(is.na(select_objs))] = NA
-select_ranks <- select_ranks[order(select_objs$`100mins`), ]
-select_objs <-select_objs[order(select_objs$`100mins`), ]
+select_ranks <- select_ranks[order(select_objs$`X100mins`), ]
+select_objs <-select_objs[order(select_objs$`X100mins`), ]
 
 
 linelwd <- 4

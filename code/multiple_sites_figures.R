@@ -4,9 +4,10 @@
 pointcex_adjust = 0.8
 pal=rev(viridis(12)[2:11])
 
+
 {png("figures/multiple_sites/malinau_one_obj_2_5_comb.png",
-  height=2400, width=1700, pointsize=40)
-  par(xpd=NA, mfrow=c(2,2), mar=c(1,1,1,1), oma=c(17,0,0,0))
+  height=2100, width=1700, pointsize=40)
+  par(xpd=NA, mfrow=c(2,2), mar=c(1,1,1,1), oma=c(10,0,0,0))
   set.seed(2)
   plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]),
   )
@@ -84,26 +85,40 @@ pal=rev(viridis(12)[2:11])
          cex=site_freqs$Freq*pointcex_adjust, lwd=2)
   subfigure_label(par()$usr,0.1,0.9,"(d)", 1.2)
   
-  hbreaks <- seq(min(malinau_obj2$obj), max(malinau_obj2$obj), length.out=40)
-  par(oma=c(5.1,12,55,12), mfrow=c(4,1), mar=c(0.1,2.1,0.1,0.1), new=TRUE, mfg=c(1,1), xpd=TRUE)
-  hist(malinau_obj2$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
-  abline(v=malinau_obj2$obj[1:10], col=pal, lwd=2)
-  hist(malinau_obj3$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
-  abline(v=malinau_obj3$obj[1:10], col=pal, lwd=2)
-  hist(malinau_obj4$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
-  abline(v=malinau_obj4$obj[1:10], col=pal, lwd=2)
-  hist(malinau_obj5$obj, breaks=hbreaks, cex.lab=1.2, cex.axis=0.7,
-        main="", ylab="")
-  abline(v=malinau_obj5$obj[1:10], col=pal, lwd=2)
-  par(xpd=NA)
-  mtext("Frequency", 2, outer=TRUE, cex=0.8)
-  mtext("Mean objective value", 1, outer=TRUE, cex=0.8, line=2)
+  # hbreaks <- seq(min(malinau_obj2$obj), max(malinau_obj2$obj), length.out=40)
+  # par(oma=c(5.1,12,50,12), mfrow=c(4,1), mar=c(0.1,2.1,0.1,0.1), new=TRUE, mfg=c(1,1), xpd=TRUE)
+  # hist(malinau_obj2$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
+  # abline(v=malinau_obj2$obj[1:10], col=pal, lwd=2)
+  # hist(malinau_obj3$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
+  # abline(v=malinau_obj3$obj[1:10], col=pal, lwd=2)
+  # hist(malinau_obj4$obj, breaks=hbreaks, xaxt="n", main="", cex.axis=0.7, xlab="", ylab="")
+  # abline(v=malinau_obj4$obj[1:10], col=pal, lwd=2)
+  # hist(malinau_obj5$obj, breaks=hbreaks, cex.lab=1.2, cex.axis=0.7,
+  #       main="", ylab="")
+  # abline(v=malinau_obj5$obj[1:10], col=pal, lwd=2)
+  # par(xpd=NA)
+  # mtext("Frequency", 2, outer=TRUE, cex=0.8)
+  # mtext("Mean objective value", 1, outer=TRUE, cex=0.8, line=2)
+  vpal <- colorRampPalette(iddu(4)[2:4])(4)
   
-  par(mfrow=c(1,1), new=TRUE, oma=c(3.1,1,36,1), mar=c(0.1,2.1,0.1,2.1))
-  plot(0, xlim=c(0,1), ylim=c(0,1), xlab="", ylab="", type="n", axes=FALSE)
-  text(rep(0.9), seq(0.1,0.9, length.out=4), paste(5:2, "sites"), cex=0.9)
-  par(xpd=NA)
-  subfigure_label(par()$usr,0.18,1.02,"(e)", 1)
+  par(oma=c(0,2,30,2), mfrow=c(1,1), mar=c(4.1,2.1,6.1,6.1), new=TRUE, mfg=c(1,1), xpd=FALSE)
+  plot(0, xlim=c(1.37,1.51), type="n", yaxt="n", ylab="", cex.lab=0.8, cex.axis=0.8, xlab="")
+  mtext(side=1, "Mean objective value", cex=0.8, line=2)
+  abline(v=malinau_obj2$obj[1:10], col=vpal[1], lwd=4)
+  abline(v=malinau_obj3$obj[1:10], col=vpal[2], lwd=4)
+  abline(v=malinau_obj4$obj[1:10], col=vpal[3], lwd=4)
+  abline(v=malinau_obj5$obj[1:10], col=vpal[4], lwd=4)
+  
+  par(oma=c(0,0,30,2), mfrow=c(1,1), mar=c(4.1,2.1,6.1,2.1), new=TRUE, mfg=c(1,1), xpd=NA)
+  plot(0, axes=FALSE, type="n", xlab="")
+  legend("right", fill=vpal, legend=paste(2:5, "sites"), cex=0.8, bty="n")
+  subfigure_label(par()$usr,0.01,1.02,"(e)", 1)
+  
+  # par(mfrow=c(1,1), new=TRUE, oma=c(3.1,1,36,1), mar=c(0.1,2.1,0.1,2.1))
+  # plot(0, xlim=c(0,1), ylim=c(0,1), xlab="", ylab="", type="n", axes=FALSE)
+  # text(rep(0.9), seq(0.1,0.9, length.out=4), paste(5:2, "sites"), cex=0.9)
+  # par(xpd=NA)
+  # subfigure_label(par()$usr,0.18,1.02,"(e)", 1)
   
   dev.off()}
 
@@ -312,9 +327,9 @@ pal=rev(viridis(12)[2:11])
   # get ready for the most cursed use of oma in a bit
   pairs(dplyr::select(langkat_pairsdf, -c("site1","site2"))[,c(1,3,2,4)], oma=c(4,5,54,35), new=TRUE, cex.labels=1.2, cex.axis=0.8,
         #lower.panel=panel.hist, 
-        cex=0.8)
+        cex=0.8, cex.axis=1.1)
   
-  par(xpd=TRUE, mfrow=c(3,2), mar=c(1,1,1,1), oma=c(0,0,0,0), mfg=c(1,1), new=TRUE)
+  par(xpd=NA, mfrow=c(3,2), mar=c(1,1,1,1), oma=c(0,0,0,0), mfg=c(1,1), new=TRUE)
   plot(st_geometry(district_shapes[district_shapes$district_name == "LANGKAT",]),
   )
   points(langkat_sites[,c("lon","lat")], pch=4)
@@ -322,12 +337,13 @@ pal=rev(viridis(12)[2:11])
   par(xpd=NA)
   label_two_combs(langkat_obj2[select,], langkat_sites,
                   centre=c(98.22, 3.6),
-                  label_radius=0.47,
+                  label_radius=0.45,
                   n_toadstools = 35,
                   gap=0.99,
                   pal=pal[select],
-                  labs=select)
-  subfigure_label(par()$usr,0.1,0.9,"(a)",1.3)
+                  labs=select,
+                  lab_cex = 1.5)
+  subfigure_label(par()$usr,0.1,0.9,"(a)",1.7)
   
   plot(st_geometry(district_shapes[district_shapes$district_name == "LANGKAT",]),
   )
@@ -339,8 +355,8 @@ pal=rev(viridis(12)[2:11])
                   n_toadstools = 45,
                   gap=0.99,
                   pal=pal[select],
-                  labs=select)
-  subfigure_label(par()$usr,0.1,0.9,"(b)",1.3)
+                  labs=select, lab_cex = 1.5)
+  subfigure_label(par()$usr,0.1,0.9,"(b)",1.7)
   
   plot(st_geometry(district_shapes[district_shapes$district_name == "LANGKAT",]),
   )
@@ -352,8 +368,9 @@ pal=rev(viridis(12)[2:11])
                   n_toadstools = 45,
                   gap=0.99,
                   pal=pal[select],
-                  labs=select)
-  subfigure_label(par()$usr,0.1,0.9,"(c)",1.3)
+                  labs=select,
+                  lab_cex = 1.5)
+  subfigure_label(par()$usr,0.1,0.9,"(c)",1.7)
   
   plot(st_geometry(district_shapes[district_shapes$district_name == "LANGKAT",]),
   )
@@ -365,35 +382,36 @@ pal=rev(viridis(12)[2:11])
                   n_toadstools = 45,
                   gap=0.99,
                   pal=pal[select],
-                  labs=select)
-  subfigure_label(par()$usr,0.1,0.9,"(d)",1.3)
+                  labs=select,
+                  lab_cex = 1.5)
+  subfigure_label(par()$usr,0.1,0.9,"(d)",1.7)
   
   plot(0, type="n", axes=FALSE)
-  subfigure_label(par()$usr,0.1,1,"(e)",1.3)
+  subfigure_label(par()$usr,0.1,1,"(e)",1.7)
   
   par(oma=c(3.1,33,55,7), mfrow=c(4,1), mar=c(2.1,4.1,0.1,0.1), new=TRUE, mfg=c(1,1))
   par(xpd=FALSE)
   hist(langkat_obj2$obj, breaks=seq(min(langkat_obj2$obj), max(langkat_obj2$obj), length.out=40), 
-        main="", cex.axis=0.7, xlab="", ylab="")
+        main="", cex.axis=0.9, xlab="", ylab="")
   abline(v=langkat_obj2$obj[1:10], col=pal, lwd=2)
   hist(langkat_obj2_sum$obj,breaks=seq(min(langkat_obj2_sum$obj), max(langkat_obj2_sum$obj), length.out=40), 
-       main="", cex.axis=0.7, xlab="", ylab="")
+       main="", cex.axis=0.9, xlab="", ylab="")
   abline(v=langkat_obj2_sum$obj[1:10], col=pal, lwd=2)
   hist(langkat_obj2_size$obj,breaks=seq(min(langkat_obj2_size$obj), max(langkat_obj2_size$obj), length.out=40), 
-             main="", cex.axis=0.7, xlab="", ylab="")
+             main="", cex.axis=0.9, xlab="", ylab="")
   abline(v=langkat_obj2_size$obj[1:10], col=pal, lwd=2)
   hist(langkat_obj2_dist$obj, breaks=seq(min(langkat_obj2_dist$obj), max(langkat_obj2_dist$obj), length.out=40), 
-       cex.axis=0.7, xlab="", main="", ylab="")
+       cex.axis=0.9, xlab="", main="", ylab="")
   abline(v=langkat_obj2_dist$obj[1:10], col=pal, lwd=2)
   par(xpd=NA)
-  mtext("Objective Value", 1, outer=TRUE, cex=0.8, line=0.5)
-  mtext("Frequency", 2, outer=TRUE, cex=0.8, line=-1.5)
+  mtext("Objective value", 1, outer=TRUE, cex=0.8, line=0.5)
+  mtext("Number of surveillance designs", 2, outer=TRUE, cex=0.8, line=-1.5)
   
   par(mfrow=c(1,1), new=TRUE, oma=c(0,0,0,0), mar=c(3.1,25.5,34.1,2.1))
   plot(0, xlim=c(0,1), ylim=c(0,1), axes=FALSE, xlab="", ylab="", type="n")
-  text(rep(1), seq(0.1,0.83, length.out=4), names(pairsdf)[c(4,2,3,1)], cex=0.9)
+  text(rep(1), seq(0.1,0.83, length.out=4), names(langkat_pairsdf)[c(6,4,5,1)], cex=0.9)
   par(xpd=NA)
-  subfigure_label(par()$usr,-0.1,0.9,"(f)", 0.9)
+  subfigure_label(par()$usr,-0.1,0.9,"(f)", 1)
   
   dev.off()}
 
@@ -504,7 +522,8 @@ dev.off()}
 # MORE SITES IN THE DESIGNS !
 
 scatter_panel <- function(sites, xlab="", ylab="", main="", 
-                          lims=c(min(sites$obj.x), max(sites$obj.x), min(sites$obj.y), max(sites$obj.y))){
+                          lims=c(min(sites$obj.x), max(sites$obj.x), 
+                                 min(sites$obj.y), max(sites$obj.y))){
   # hardcoded for maximising and minimising
   plot(sites[,c("obj.x", "obj.y")], xlab=xlab, ylab=ylab, main=main,
        xlim=rev(lims[1:2]), ylim=lims[3:4], cex.lab=1.3, cex.main=1.3)
@@ -580,11 +599,13 @@ alllims <- data.frame(summin=c(min(langkat_obj2_sum$obj),
                             max(langkat_obj5_dist$obj),
                             max(langkat_obj6_dist$obj)))
 
+pal <- colorRampPalette(iddu(4)[2:4])
+
 {png("figures/multiple_sites/langkat_sum_dist_2_6_option2.png",
-    height=2500,
+    height=2000,
     width=2000,
     pointsize=40)
-par(mfrow=c(3,3), mar=c(4.1,1.1,3.1,1.1), oma=c(0,3,0,0), xpd=NA)
+par(mfrow=c(2,3), mar=c(4.1,1.1,3.1,1.1), oma=c(14,3,0,0), xpd=NA)
 scatter_panel(sites2, main="2 sites", xlab="Network distance", ylab="Sum objective",
               lims=c(min(alllims$distmin), max(alllims$distmax), 
                      min(alllims$summin), max(alllims$summax)))
@@ -594,32 +615,33 @@ scatter_panel(sites3, main="3 sites", xlab="Network distance",
 scatter_panel(sites4, main="4 sites", xlab="Network distance",
               lims=c(min(alllims$distmin), max(alllims$distmax), 
                      min(alllims$summin), max(alllims$summax)))
-par(mfrow=c(3,2), mar=c(4.1,1.1,3.1,1.1), oma=c(0,12,0,9), xpd=NA, mfg=c(2,1))
-scatter_panel(sites5, main="4 sites", xlab="Network distance", ylab="Sum objective",
-              lims=c(min(alllims$distmin), max(alllims$distmax), 
+par(mfrow=c(2,2), mar=c(4.1,1.1,2.1,1.1), oma=c(12,10.5,0,7), xpd=NA, mfg=c(2,1), cex=0.7)
+scatter_panel(sites2, main="5 sites", xlab="Network distance", ylab="Sum objective",
+              lims=c(min(alllims$distmin), max(alllims$distmax),
                      min(alllims$summin), max(alllims$summax)))
-scatter_panel(sites6, main="5 sites", xlab="Network distance",
-              lims=c(min(alllims$distmin), max(alllims$distmax), 
+par(mfrow=c(2,2), mar=c(4.1,1.1,2.1,1.1), oma=c(12,10.5,0,7), xpd=NA, mfg=c(2,2), cex=0.7)
+scatter_panel(sites2, main="6 sites", xlab="Network distance",
+              lims=c(min(alllims$distmin), max(alllims$distmax),
                      min(alllims$summin), max(alllims$summax)))
 
 pal2 = viridis(7)[2:6]
-pal2 <- rev(idem(5))
-par(mfrow=c(6,1), xpd=FALSE, mar=c(4.1,1.1,1.1,1.1), oma=c(0,3,0,0),  mfg=c(5,1), new=TRUE)
-plot(0, xlim=c(180, max(alllims$summax)+10), ylim=c(0,1.5),
+# pal2 <- rev(idem(5))
+par(mfrow=c(10,1), xpd=FALSE, mar=c(2.1,0.1,0.1,2.1), oma=c(2,7,0,10),  mfg=c(9,1), new=TRUE)
+plot(0, xlim=c(180, max(alllims$summax)+10), ylim=c(0.5,1.6),
      type="n", yaxt="n", ylab="", xlab="Sum objective (maximising)", cex.lab=1.3)
 draw_me_an_arrow(par()$usr, c(0.42,0.4), c(0.57,0.4),
-                 width=0.08, headwidth=0.2, proplen = 0.7)
+                 width=0.1, headwidth=0.2, proplen = 0.7)
 for (i in 1:nrow(alllims)){
   lines(rep(alllims$summax[i], 2), c(-0.1, 0.9), lwd=5, col=pal2[i])
 }
-text(c(alllims$summax[1:2], alllims$summax[3]-1, alllims$summax[4], alllims$summax[5]+1), 
-     c(rep(1.2, 3), 1.45, 1.2),
+text(c(alllims$summax[1:2], alllims$summax[3]-1.5, alllims$summax[4], alllims$summax[5]+1.5), 
+     c(rep(1.1, 3), 1.45, 1.1),
      paste0(2:6, " sites"), col=pal2, font=2, cex=1.3)
 
-plot(0, xlim=rev(c(0, max(alllims$distmin)+0.05)), ylim=c(0,1.5), 
+plot(0, xlim=rev(c(0, max(alllims$distmin)+0.05)), ylim=c(0.5,1.6), 
      type="n", yaxt="n", ylab="", xlab="Network distance objective (minimising)", cex.lab=1.3)
 draw_me_an_arrow(par()$usr, c(0.42,0.4), c(0.57,0.4),
-                 width=0.08, headwidth=0.2, proplen = 0.7)
+                 width=0.1, headwidth=0.2, proplen = 0.7)
 for (i in 1:nrow(alllims)){
   lines(rep(alllims$distmin[i], 2), c(-0.1, 0.9), lwd=5, col=pal2[i])
 }
@@ -628,8 +650,11 @@ text(alllims$distmin, rep(1.2, 5), paste0(2:6, " sites"), col=pal2, font=2, cex=
 par(mfrow=c(1,1), mar=rep(0.1, 4), oma=rep(0,4), new=TRUE)
 plot(0, xlab="", ylab="", axes=FALSE, xlim=c(0,1), ylim=c(0,1), bty="l", type="n")
 subfigure_label(par()$usr, 0.03,0.99,"(a)")
-subfigure_label(par()$usr, 0.03,0.33,"(b)")
-subfigure_label(par()$usr, 0.03,0.16,"(c)")
+subfigure_label(par()$usr, 0.08,0.21,"(b)")
+subfigure_label(par()$usr, 0.08,0.11,"(c)")
+
+subfigure_label(par()$usr, 0.9, 0.19, "Sum objective")
+subfigure_label(par()$usr, 0.9, 0.095, "Network distance")
 
 dev.off()}
 

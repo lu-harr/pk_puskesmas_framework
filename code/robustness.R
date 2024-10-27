@@ -179,7 +179,7 @@ for (district in 1:2){
                    "")#paste0(str_to_title(districts[district]), " - Travel time catchments"))
   par(mar=c(0,0,0,0), oma=c(0,0,0,0), mfrow=c(1,1), new=TRUE)
   empty_plot_for_legend()
-  subfigure_label(par()$usr, 0.02,0.95,"(a)",cex.label = 1.2)
+  #subfigure_label(par()$usr, 0.02,0.95,"(a)",cex.label = 1.2)
   dev.off()
 }
-
+# manually chopping some whitespace off :')

@@ -232,33 +232,40 @@ langkat_points <- langkat_points[langkat_ranks,]
 
 # doing it again but panelled with langkat ...
 {png(paste0("figures/", "langkat_malinau", "_time_rank_map.png"),
-     width = 3000,
+     width = 2500,
      height = 1400,
      pointsize = 35)
   par(mfrow=c(1,2),
-      mar=c(5.5,5.5,5.5,5.5),
+      mar=c(4.5,4.5,4.5,4.5),
       oma=c(0,0,0,4),
-      xpd = FALSE, bty="n")
+      xpd = NA, bty="n")
   
   # HERE'S LANGKAT
   plot(trim(mask(lulc_covs$brt_mean,
                  district_shapes[district_shapes$district_name == "LANGKAT",])),
        bty="n", axes=FALSE,
        col=purps(ncolours), breaks=colbreaks, legend=FALSE)
+  par(xpd=NA)
   plot(st_geometry(district_shapes[district_shapes$district_name == "LANGKAT",]), lwd=2, add=TRUE)
   
   par(xpd=NA)
   select = c(1,4,5,8,9)
   plot_sites_radius_pusk(ranked_sites = langkat_points[select, c("lon", "lat")],
                          labs = sapply(select, function(x){paste0(x, ". ", langkat_points[x,"name"])}),
-                         label_radius = 0.45,
+                         label_radius = 0.42,
                          centre = c(98.22, 3.55), gap = langkat_map_tweaks$gap,
                          n_toadstools = 35, line_col="grey80", lab_col = "black", lab_cex = 1.1)
-  select = c(2,3,6,7,10)
+  select = c(2,3,6,7)
+  plot_sites_radius_pusk(ranked_sites = langkat_points[select, c("lon", "lat")],
+                         labs = sapply(select, function(x){paste0(x, ". ", langkat_points[x,"name"])}),
+                         label_radius = langkat_map_tweaks$radius*0.84, 
+                         centre = c(98.25, 3.65), gap = langkat_map_tweaks$gap,
+                         n_toadstools = 35, line_col="grey80", lab_col = "black", lab_cex = 1.1)
+  select = c(10)
   plot_sites_radius_pusk(ranked_sites = langkat_points[select, c("lon", "lat")],
                          labs = sapply(select, function(x){paste0(x, ". ", langkat_points[x,"name"])}),
                          label_radius = langkat_map_tweaks$radius, 
-                         centre = c(98.3, 3.65), gap = langkat_map_tweaks$gap,
+                         centre = c(98.15, 3.65), gap = langkat_map_tweaks$gap,
                          n_toadstools = 35, line_col="grey80", lab_col = "black", lab_cex = 1.1)
   points(langkat_unranked[, c("lon", "lat")], pch=4, 
          #col=ifelse(langkat_unranked$dataset == "prelim", "orange", "grey70"), 
@@ -278,7 +285,7 @@ langkat_points <- langkat_points[langkat_ranks,]
          font=2,cex=1.1)
   }
   
-  subfigure_label(par()$usr, 0, 1, "(a)", 1.3)
+  subfigure_label(par()$usr, 0, 1, "(a)", 1.5)
   
   # HERE'S MALINAU ......
   plot(trim(mask(lulc_covs$brt_mean,
@@ -288,16 +295,16 @@ langkat_points <- langkat_points[langkat_ranks,]
   plot(st_geometry(district_shapes[district_shapes$district_name == "MALINAU",]), lwd=2, add=TRUE)
   
   par(xpd=NA)
-  select = c(1:4,6)
+  select = c(2,4,6)
   plot_sites_radius_pusk(ranked_sites = malinau_points[select, c("lon", "lat")],
                          labs = sapply(select, function(x){paste0(x, ". ", malinau_points[x,"name"])}),
-                         label_radius = 1.85, centre = c(116.2,2.1), gap = malinau_map_tweaks$gap,
+                         label_radius = 1.1, centre = c(115.5,1.5), gap = malinau_map_tweaks$gap,
                          n_toadstools = 50,line_col="grey80", lab_col = "black", lab_cex = 1.1)
-  select = c(5,8)
+  select = c(3,5,8)
   plot_sites_radius_pusk(ranked_sites = malinau_points[select, c("lon", "lat")],
                          labs = sapply(select, function(x){paste0(x, ". ", malinau_points[x,"name"])}),
-                         label_radius = 1.3, centre = c(116.2,4), gap = malinau_map_tweaks$gap,
-                         n_toadstools = malinau_map_tweaks$n_toadstools, line_col="grey80", lab_col = "black",
+                         label_radius = 3, centre = c(118,2.5), gap = malinau_map_tweaks$gap,
+                         n_toadstools = 60, line_col="grey80", lab_col = "black",
                          lab_cex = 1.1)
   select = c(7,9,10)
   plot_sites_radius_pusk(ranked_sites = malinau_points[select, c("lon", "lat")],
@@ -305,6 +312,11 @@ langkat_points <- langkat_points[langkat_ranks,]
                          label_radius = 1.3, centre = c(116.4,3),
                          gap = malinau_map_tweaks$gap, n_toadstools = 30,
                          line_col="grey80", lab_col = "black", lab_cex = 1.1)
+  select = c(1)
+  plot_sites_radius_pusk(ranked_sites = malinau_points[select, c("lon", "lat")],
+                         labs = sapply(select, function(x){paste0(x, ". ", malinau_points[x,"name"])}),
+                         label_radius = 2.4, centre = c(114,2), gap = malinau_map_tweaks$gap,
+                         n_toadstools = 50,line_col="grey80", lab_col = "black", lab_cex = 1.1)
   points(malinau_unranked[, c("lon", "lat")], pch=4, 
          #col=ifelse(malinau_unranked$dataset == "prelim", "orange", "grey70"),
          col="grey80",
@@ -322,7 +334,7 @@ langkat_points <- langkat_points[langkat_ranks,]
          font=2,cex=1.1)
   }
   
-  subfigure_label(par()$usr, 0, 1, "(b)", 1.3)
+  subfigure_label(par()$usr, 0, 1, "(b)", 1.5)
   
   par(mfrow=c(1,1), new=TRUE, oma=c(0,0,0,0), mar=c(4.1,4.1,4.1,4.1))
   plot(0, type="n", axes=FALSE, xlab="", ylab="")

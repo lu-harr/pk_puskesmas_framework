@@ -15,6 +15,7 @@ library(malariaAtlas)
 # library(seegSDM) # darn it I'm no longer compatible with rgeos and rgdal
 library(geosphere)
 library(tidyverse)
+library(ape)
 
 source("code/plot_functions.R")
 
@@ -344,13 +345,24 @@ panel.hist <- function(x, ...)
 }
 
 
-
-
 # maybe I should order sites in malinau_sites by malinau_obj1?
-summary_comb(malinau_obj2, malinau_sites, malinau_obj1)
-summary_comb(malinau_obj3, malinau_sites, malinau_obj1)
-summary_comb(malinau_obj4, malinau_sites, malinau_obj1)
-summary_comb(malinau_obj5, malinau_sites, malinau_obj1)
+# this would be where I put in categorical colours for the eight sites that end up in there ..
+catpal <- c(iddu(4)[2:4], viridis(6)[3:6])
+catpal <- c("#aee7ff","#d2abf0","#f6a3c8","#a8f5e1","#aec2ff","#bee8ab","#f7f4b1")
+catpal <- gsub("#","",catpal)
+# catpal <- gsub("FF", "", catpal)
+malinau_sites$name[c(1,2,3,4,5,6,11)]
+
+tmp_malinau_sites <- malinau_sites
+tmp_malinau_sites$name[c(1:6, 11)] <- paste("\\cellcolor[HTML]{",catpal,"}", 
+                                            malinau_sites$name[c(1:6, 11)], sep="")
+# coloured_malinau_sites <- malinau_sites[c(1:6, 11),] %>%
+#   mutate(name = paste("\\cellcolor[HTML]{",catpal,"}", name, sep=""))
+
+summary_comb(malinau_obj2, tmp_malinau_sites, malinau_obj1)
+summary_comb(malinau_obj3, tmp_malinau_sites, malinau_obj1)
+summary_comb(malinau_obj4, tmp_malinau_sites, malinau_obj1)
+summary_comb(malinau_obj5, tmp_malinau_sites, malinau_obj1)
 
 
 ##################################################################################
@@ -484,7 +496,7 @@ langkat_obj5_sum = combn(nrow(langkat_sites), 5, eval_obj_surface_sum, TRUE,
 #   rename(obj=V1, site1=V2, site2=V3, site3=V4, site4=V5, site5=V6, site6=V7) %>%
 #   arrange(desc(obj))
 # write.csv(langkat_obj6_sum, "output/multiple_sites/langkat_sum_6.csv", row.names=FALSE)
-
+langkat_obj6_sum <- read.csv("output/multiple_sites/langkat_sum_6.csv")
 
 # distance
 langkat_obj3_dist = combn(nrow(langkat_sites), 3,

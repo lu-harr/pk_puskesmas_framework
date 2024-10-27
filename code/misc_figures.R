@@ -1,6 +1,8 @@
 # figures!
 
 library(wesanderson)
+library(dplyr)
+library(sf)
 
 #TODO
 # fix colour palette - purps is too grey (or change background to not be grey)
@@ -9,8 +11,9 @@ purps = c("#F0E6FC","#DAC7EE","#BC95E9","#B582EE","#9C59E5","#6711D1")
 # from multicrit paper:
 purps = brewer.pal(9, "Purples")
 darkpurp = rgb(colorRamp(c(purps[9], "black"))(0.9)/100)
-purps = colorRampPalette(c(purps[2], purps[9]))(9)
-purps = colorRampPalette(c(purps))#, darkpurp))
+purps = colorRampPalette(c(purps[2], purps[5], purps[9])) # slightly different to multicrit but hopefully the middle is a little more defined
+
+plot(raster(matrix(rnorm(2500), nrow=50, ncol=50)), col=purps(100))
 
 bg_col = "grey95"
 # The trouble with these purps is there's some grey lookin things that are hard to distinguish from bg ..
