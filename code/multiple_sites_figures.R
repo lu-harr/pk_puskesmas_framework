@@ -616,11 +616,11 @@ scatter_panel(sites4, main="4 sites", xlab="Network distance",
               lims=c(min(alllims$distmin), max(alllims$distmax), 
                      min(alllims$summin), max(alllims$summax)))
 par(mfrow=c(2,2), mar=c(4.1,1.1,2.1,1.1), oma=c(12,10.5,0,7), xpd=NA, mfg=c(2,1), cex=0.7)
-scatter_panel(sites2, main="5 sites", xlab="Network distance", ylab="Sum objective",
+scatter_panel(sites5, main="5 sites", xlab="Network distance", ylab="Sum objective",
               lims=c(min(alllims$distmin), max(alllims$distmax),
                      min(alllims$summin), max(alllims$summax)))
 par(mfrow=c(2,2), mar=c(4.1,1.1,2.1,1.1), oma=c(12,10.5,0,7), xpd=NA, mfg=c(2,2), cex=0.7)
-scatter_panel(sites2, main="6 sites", xlab="Network distance",
+scatter_panel(sites6, main="6 sites", xlab="Network distance",
               lims=c(min(alllims$distmin), max(alllims$distmax),
                      min(alllims$summin), max(alllims$summax)))
 
